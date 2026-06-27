@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SolveBook — อ่านจบไว แก้ปัญหาได้จริง</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Trirong:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4EDDD; --paper2:#EFE6D2; --card:#FCF8EE;
+  --ink:#211D17; --ink2:#4A4034; --muted:#988B74; --line:#E5DAC1;
+  --gold:#BE9A4E; --gold-d:#9A7A32;
+  --fin:#2F6E4F; --biz:#355C8A; --self:#6E8B3C; --health:#BD6A49;
+  --love:#AE5670; --work:#6F63A0; --psy:#3F8585; --study:#C39A3F;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Sarabun',sans-serif;background:var(--paper);color:var(--ink);line-height:1.6}
+.serif{font-family:'Trirong',serif}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.gold-text{background:linear-gradient(100deg,var(--gold),var(--gold-d));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* header */
+header{position:sticky;top:0;z-index:40;background:rgba(244,237,221,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:16px;height:64px}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Trirong',serif;font-weight:600;font-size:1.3rem;white-space:nowrap}
+.logo svg{width:26px;height:26px;color:var(--gold-d)}
+.search{flex:1;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:30px;padding:9px 16px;max-width:440px}
+.search input{border:0;background:transparent;outline:0;width:100%;font-family:inherit;font-size:.95rem;color:var(--ink)}
+.search svg{width:17px;height:17px;color:var(--muted);flex-shrink:0}
+.btn-ink{background:var(--ink);color:var(--paper);border:0;border-radius:30px;padding:9px 20px;font-family:'Sarabun';font-weight:500;font-size:.92rem;cursor:pointer;white-space:nowrap}
+.btn-ink:hover{background:#000}
+.hamb{display:none;background:none;border:0;cursor:pointer;color:var(--ink)}
+.hamb svg{width:26px;height:26px}
+
+/* hero */
+.hero{padding:56px 0 48px;position:relative;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:center}
+.eyebrow{font-weight:600;color:var(--gold-d);letter-spacing:.02em;margin-bottom:10px;font-size:1.05rem}
+.hero h1{font-family:'Trirong',serif;font-weight:700;font-size:3.05rem;line-height:1.18;letter-spacing:-.01em}
+.hero p.lead{margin-top:16px;font-size:1.12rem;color:var(--ink2)}
+.hero-cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}
+.btn-lg{padding:13px 26px;border-radius:30px;font-weight:600;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--ink);color:var(--paper);border:0}
+.btn-primary:hover{background:#000}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.btn-ghost:hover{background:rgba(33,29,23,.05)}
+
+/* bubble cluster (signature) */
+.bubbles{position:relative;height:360px}
+.bub{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:30px;padding:11px 20px;font-weight:600;color:var(--ink2);box-shadow:0 10px 30px rgba(60,44,18,.08);animation:float 6s ease-in-out infinite}
+.bub .x{color:var(--health);margin-right:6px;font-weight:700}
+.bub.b1{top:18%;left:6%;animation-delay:0s}
+.bub.b2{top:4%;right:10%;animation-delay:.8s;color:var(--ink);border-color:var(--gold)}
+.bub.b3{top:42%;right:2%;animation-delay:1.6s}
+.bub.b4{bottom:20%;left:0;animation-delay:2.2s}
+.bub.b5{bottom:6%;right:18%;animation-delay:1.1s}
+.bub-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff8e8, var(--paper2));border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:inset 0 2px 12px rgba(190,154,78,.12)}
+.bub-core span{font-family:'Trirong',serif;font-size:1.2rem;color:var(--gold-d);font-weight:600;line-height:1.3}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@media(prefers-reduced-motion:reduce){.bub{animation:none}}
+
+/* sections */
+section.blk{padding:30px 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+.sec-head h2{font-family:'Trirong',serif;font-size:1.7rem;font-weight:600}
+.sec-head a{color:var(--gold-d);font-weight:600;font-size:.92rem}
+
+/* categories */
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.cat:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(60,44,18,.09)}
+.cat .ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.cat .ic svg{width:22px;height:22px;color:#fff}
+.cat h3{font-family:'Trirong',serif;font-size:1.12rem;font-weight:600}
+.cat .cnt{font-size:.85rem;color:var(--muted);margin-top:2px}
+
+/* book grid */
+.books{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.book{cursor:pointer;transition:transform .15s}
+.book.soon{cursor:default;opacity:.72}
+.book:not(.soon):hover{transform:translateY(-4px)}
+.cover{aspect-ratio:3/4;border-radius:14px;padding:22px 20px;display:flex;flex-direction:column;justify-content:space-between;
+  color:#fff;position:relative;overflow:hidden;box-shadow:0 14px 30px rgba(40,30,15,.16)}
+.cover .ctop{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:600}
+.cover .ctitle{font-family:'Trirong',serif;font-size:1.5rem;font-weight:700;line-height:1.22}
+.cover .cbrand{font-size:.72rem;opacity:.8;display:flex;align-items:center;gap:5px}
+.cover .ribbon{position:absolute;top:12px;right:-30px;transform:rotate(45deg);background:rgba(0,0,0,.35);
+  color:#fff;font-size:.66rem;padding:3px 34px;font-weight:600}
+.book-meta{display:flex;align-items:center;justify-content:space-between;margin-top:11px}
+.book-title{font-weight:600;font-size:1rem;line-height:1.35;color:var(--ink)}
+.badge{font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:20px}
+.badge.free{background:#e7f0e7;color:var(--fin)}
+.badge.soon{background:#efe6d2;color:var(--muted)}
+.rate{font-size:.82rem;color:var(--muted);display:flex;gap:10px;margin-top:6px}
+.rate b{color:var(--gold-d)}
+
+/* mini list (5 min) */
+.minis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center}
+.mini .sq{width:48px;height:48px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Trirong',serif;font-weight:700}
+.mini h4{font-size:.94rem;font-weight:600;line-height:1.3}
+.mini .t{font-size:.78rem;color:var(--muted);margin-top:3px}
+
+/* cta banner */
+.banner{background:var(--ink);color:var(--paper);border-radius:22px;padding:30px 34px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:14px 0 40px}
+.banner h2{font-family:'Trirong',serif;font-size:1.55rem;font-weight:600}
+.banner p{color:#d8cdb4;margin-top:4px}
+.btn-gold{background:linear-gradient(100deg,var(--gold),var(--gold-d));color:#2a1f06;border:0;border-radius:30px;padding:13px 26px;font-weight:700;cursor:pointer;font-size:1rem}
+
+/* detail + reader */
+.view{display:none}
+.view.on{display:block}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px}
+.back{color:var(--gold-d);font-weight:600;margin:24px 0 14px;cursor:pointer;display:inline-block}
+.toc-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-top:9px;cursor:pointer;display:flex;gap:13px;align-items:center}
+.toc-item:hover{border-color:var(--gold)}
+.toc-item .n{font-family:'Trirong',serif;color:var(--gold-d);font-weight:700;width:22px;text-align:center}
+.reader{max-width:680px;margin:0 auto}
+.reader .rk{display:inline-block;font-family:'Trirong',serif;background:var(--ink);color:var(--paper);font-size:.8rem;padding:5px 14px;border-radius:20px;margin-bottom:14px}
+.reader h2{font-family:'Trirong',serif;font-size:1.9rem;font-weight:700;color:var(--ink);margin-bottom:18px;line-height:1.3}
+.reader .body{white-space:pre-wrap;font-size:1.08rem;line-height:1.95;color:var(--ink2)}
+.rnav{display:flex;align-items:center;justify-content:space-between;margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
+.rnav button{padding:11px 22px;border-radius:30px;font-weight:600;cursor:pointer;font-family:inherit;border:0}
+.rnav .prev{background:var(--paper2);color:var(--ink)}
+.rnav .next{background:var(--ink);color:var(--paper)}
+
+/* auth + drawer */
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:20px;padding:6px 13px;font-size:.85rem;cursor:pointer;font-family:inherit;color:var(--ink2)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.modal{display:none;position:fixed;inset:0;z-index:60;background:rgba(23,18,10,.45);align-items:center;justify-content:center;padding:18px}
+.modal.on{display:flex}
+.box{background:var(--card);border-radius:20px;padding:28px;width:100%;max-width:380px}
+.box h3{font-family:'Trirong',serif;font-size:1.4rem;margin-bottom:16px}
+.box input{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 14px;margin-bottom:10px;font-family:inherit;font-size:.96rem;background:var(--paper)}
+.box .msg{font-size:.86rem;height:20px;margin-bottom:8px;color:#b4532b}
+.drawer{display:none;position:fixed;inset:0;z-index:55;background:rgba(23,18,10,.45)}
+.drawer.on{display:block}
+.drawer .sheet{position:absolute;top:0;right:0;width:86%;max-width:360px;height:100%;background:var(--paper);padding:20px;overflow:auto}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:10px 0 18px}
+.dgrid button{background:var(--card);border:0;padding:22px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-family:inherit;font-size:.9rem;color:var(--ink2)}
+.dgrid button svg{width:22px;height:22px;color:var(--gold-d)}
+
+/* bottom nav (mobile) */
+.botnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:45;background:var(--card);border-top:1px solid var(--line);justify-content:space-around;padding:8px 0 10px}
+.botnav button{background:0;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:.72rem;font-family:inherit;cursor:pointer}
+.botnav button svg{width:21px;height:21px}
+.botnav button.active{color:var(--gold-d)}
+
+footer{text-align:center;color:var(--muted);padding:30px 0 90px;font-size:.88rem}
+
+@media(max-width:860px){
+  .search{display:none}
+  .hamb{display:block}
+  .hero-grid{grid-template-columns:1fr;gap:8px}
+  .hero{padding:34px 0 26px}
+  .hero h1{font-size:2.3rem}
+  .bubbles{height:300px;margin-top:10px}
+  .cats{grid-template-columns:repeat(2,1fr)}
+  .books{grid-template-columns:repeat(2,1fr)}
+  .minis{grid-template-columns:1fr 1fr}
+  .botnav{display:flex}
+  footer{padding-bottom:90px}
+}
+@media(max-width:520px){
+  .books{grid-template-columns:1fr 1fr}
+  .cover .ctitle{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ICONS (defs) -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<g id="i-book"><path d="M3 5a2 2 0 0 1 2-2h6v16H5a2 2 0 0 0-2 2V5z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M21 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2V5z" fill="none" stroke="currentColor" stroke-width="1.6"/></g>
+</defs></svg>
+
+<header>
+  <div class="wrap hrow">
+    <div class="logo" onclick="go('home')">
+      <svg viewBox="0 0 24 24"><use href="#i-book"/></svg> SolveBook
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2"/></svg>
+      <input id="q" placeholder="ค้นหาปัญหาหรือหัวข้อที่คุณต้องการ" oninput="filterBooks(this.value)">
+    </div>
+    <div id="authArea"></div>
+    <button class="hamb" onclick="toggleDrawer(true)" aria-label="เมนู">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- HOME -->
+<div id="home" class="view on">
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">เจอปัญหา?</div>
+          <h1>เราแนะนำหนังสือสั้น<br><span class="gold-text">ที่ช่วยคุณได้จริง</span></h1>
+          <p class="lead">อ่านจบไว เข้าใจง่าย แก้ปัญหาได้ทันที</p>
+          <div class="hero-cta">
+            <button class="btn-lg btn-primary" onclick="scrollTo2('catSec')">เลือกปัญหาที่คุณเจอ →</button>
+            <button class="btn-lg btn-ghost" onclick="scrollTo2('catSec')">ดูหมวดหมู่ทั้งหมด</button>
+          </div>
+        </div>
+        <div class="bubbles" aria-hidden="true">
+          <div class="bub-core"><span>หนังสือ<br>แก้ปัญหา</span></div>
+          <div class="bub b1"><span class="x">✕</span>เงินไม่พอ</div>
+          <div class="bub b2">นอนไม่หลับ</div>
+          <div class="bub b3"><span class="x">✕</span>ขายของไม่ได้</div>
+          <div class="bub b4">เครียด</div>
+          <div class="bub b5"><span class="x">✕</span>หนี้ท่วม</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk" id="catSec">
+      <div class="sec-head"><h2>หมวดหมู่ยอดนิยม</h2><a onclick="scrollTo2('recSec')">ดูทั้งหมด →</a></div>
+      <div class="cats" id="cats"></div>
+    </section>
+
+    <section class="blk" id="recSec">
+      <div class="sec-head"><h2>แนะนำสำหรับคุณ</h2></div>
+      <div class="books" id="books"></div>
+    </section>
+
+    <section class="blk">
+      <div class="sec-head"><h2>อ่านจบภายใน 5 นาที</h2></div>
+      <div class="minis" id="minis"></div>
+    </section>
+
+    <div class="wrap">
+      <div class="banner">
+        <div><h2>อ่านหนังสือสั้น แก้ปัญหาชีวิตได้ทันที</h2><p>เริ่มต้นการเปลี่ยนแปลงใน 5 นาที</p></div>
+        <button class="btn-gold" onclick="scrollTo2('recSec')">เริ่มตอนนี้เลย →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail" class="view"><div class="wrap">
+  <span class="back" onclick="go('home')">← กลับหน้าหลัก</span>
+  <div class="panel" id="detailHead"></div>
+  <div id="toc"></div>
+</div></div>
+
+<!-- READER -->
+<div id="reader" class="view"><div class="wrap">
+  <span class="back" onclick="backToDetail()">← สารบัญ</span>
+  <article class="panel reader">
+    <div class="rk" id="rk"></div>
+    <h2 id="rTitle"></h2>
+    <div class="body" id="rBody"></div>
+    <div class="rnav">
+      <button class="prev" id="prevBtn" onclick="move(-1)">ก่อนหน้า</button>
+      <span id="rProg" style="color:var(--muted);font-size:.9rem"></span>
+      <button class="next" id="nextBtn" onclick="move(1)">ถัดไป</button>
+    </div>
+  </article>
+</div></div>
+
+<!-- AUTH -->
+<div class="modal" id="authModal"><div class="box">
+  <h3 id="authTitle" class="serif">เข้าสู่ระบบ</h3>
+  <input id="email" type="email" placeholder="อีเมล">
+  <input id="pass" type="password" placeholder="รหัสผ่าน">
+  <div id="signupFields" style="display:none">
+    <label style="font-size:.85rem;color:var(--muted);display:block;margin:4px 0 7px">เรื่องที่คุณสนใจ (เลือกได้หลายข้อ)</label>
+    <div id="chips" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px"></div>
+    <input id="goal" placeholder="ปัญหา/เรื่องที่อยากอ่านมากที่สุด (ไม่บังคับ)">
+    <div style="display:flex;gap:8px">
+      <select id="age" style="flex:1;border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:10px;background:var(--paper);font-family:inherit;color:var(--ink)">
+        <option value="">ช่วงอายุ</option><option>ต่ำกว่า 18</option><option>18–24</option><option>25–34</option><option>35–44</option><option>45+</option>
+      </select>
+      <input id="occ" placeholder="อาชีพ (ไม่บังคับ)" style="flex:1">
+    </div>
+  </div>
+  <div class="msg" id="authMsg"></div>
+  <button class="btn-lg btn-primary" style="width:100%;justify-content:center" id="authBtn" onclick="doAuth()">เข้าสู่ระบบ</button>
+  <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:.88rem;color:var(--muted)">
+    <button onclick="toggleMode()" id="authToggle" style="background:0;border:0;text-decoration:underline;cursor:pointer;color:var(--gold-d)">ยังไม่มีบัญชี? สมัคร</button>
+    <button onclick="closeAuth()" style="background:0;border:0;cursor:pointer;color:var(--muted)">ปิด</button>
+  </div>
+</div></div>
+
+<!-- DRAWER (mobile menu) -->
+<div class="drawer" id="drawer" onclick="if(event.target===this)toggleDrawer(false)">
+  <div class="sheet">
+    <div class="hrow" style="height:auto;margin-bottom:6px">
+      <div class="logo"><svg viewBox="0 0 24 24"><use href="#i-book"/></svg> SolveBook</div>
+      <button style="margin-left:auto;background:0;border:0;font-size:1.4rem;cursor:pointer" onclick="toggleDrawer(false)">✕</button>
+    </div>
+    <div class="dgrid">
+      <button onclick="go('home');toggleDrawer(false)">🏠<span>หน้าหลัก</span></button>
+      <button onclick="scrollTo2('catSec');toggleDrawer(false)">▦<span>หมวดหมู่</span></button>
+      <button onclick="scrollTo2('recSec');toggleDrawer(false)">★<span>แนะนำ</span></button>
+      <button onclick="scrollTo2('recSec');toggleDrawer(false)">⌕<span>ค้นหา</span></button>
+      <button onclick="myShelf();toggleDrawer(false)">▮▮<span>ชั้นหนังสือ</span></button>
+      <button onclick="openAuth();toggleDrawer(false)">◑<span>โปรไฟล์</span></button>
+    </div>
+    <button class="btn-lg btn-primary" style="width:100%;justify-content:center" onclick="openAuth();toggleDrawer(false)">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="botnav">
+  <button class="active" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7v8a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2v-8z" stroke="currentColor" stroke-width="1.7"/></svg>หน้าหลัก</button>
+  <button onclick="scrollTo2('catSec')"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/></svg>หมวดหมู่</button>
+  <button onclick="scrollTo2('recSec')"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.7"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="1.7"/></svg>ค้นหา</button>
+  <button onclick="myShelf()"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16 5l4 .8-2.5 15-4-.8z" stroke="currentColor" stroke-width="1.5"/></svg>ชั้นหนังสือ</button>
+  <button onclick="openAuth()"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="1.7"/></svg>โปรไฟล์</button>
+</nav>
+
+<footer>SolveBook · อ่านจบไว แก้ปัญหาได้จริง</footer>
+
+<script>
+const SB_URL='https://ygbmpfgyxroybcnigwwz.supabase.co';
+const SB_KEY='sb_publishable_dAdkVS-7C27QDUWJT4t_cg_h45N7d9M';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+let S={books:[],book:null,ch:[],ci:0,user:null,mode:'login',sel:new Set()};
+
+const CATS=[
+ {n:'การเงิน',v:'--fin',ic:'฿'},{n:'ธุรกิจ',v:'--biz',ic:'▲'},
+ {n:'การพัฒนาตนเอง',v:'--self',ic:'✦'},{n:'สุขภาพ',v:'--health',ic:'✚'},
+ {n:'ความรัก',v:'--love',ic:'♥'},{n:'การทำงาน',v:'--work',ic:'◫'},
+ {n:'จิตวิทยา',v:'--psy',ic:'◍'},{n:'การเรียน',v:'--study',ic:'✎'}
+];
+// upcoming placeholders (client-only, not in DB) to show the full layout
+const SOON=[
+ {title:'ขายของไม่ได้ ต้องเริ่มจากอะไร?',cat:'ธุรกิจ',v:'--biz'},
+ {title:'จัดการหนี้ ยังไงให้ชีวิตไม่พัง',cat:'การเงิน',v:'--fin'},
+ {title:'สร้างธุรกิจ 0–1 สำหรับมือใหม่',cat:'ธุรกิจ',v:'--biz'},
+ {title:'เลิกเครียดใน 7 วัน',cat:'สุขภาพ',v:'--health'},
+ {title:'พูดอังกฤษ ไม่กลัวอีกต่อไป',cat:'การเรียน',v:'--study'}
+];
+const MINIS=[
+ {title:'วิธีหาเงิน 1,000 บาทแรก',v:'--fin',t:'4 นาที'},
+ {title:'หยุดคิดมาก ทำยังไงดี?',v:'--psy',t:'5 นาที'},
+ {title:'ทำยังไงให้ตื่นเช้าได้ทุกวัน',v:'--self',t:'5 นาที'},
+ {title:'เพิ่มสมาธิใน 10 นาที',v:'--self',t:'4 นาที'}
+];
+const cssv=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const grad=v=>{const c=cssv(v);return `linear-gradient(150deg, ${c}, ${shade(c,-18)})`;};
+function shade(hex,p){let n=parseInt(hex.slice(1),16);let r=(n>>16)+p,g=(n>>8&255)+p,b=(n&255)+p;
+ r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+ return '#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+
+function renderCats(){
+ const counts={};S.books.forEach(b=>{CATS.forEach(c=>{if((b.category||'').includes(c.n.replace('การเงิน','การเงิน'))||(b.category||'').includes(c.n))counts[c.n]=(counts[c.n]||0)+1;});});
+ // map "การเงินส่วนบุคคล" -> การเงิน
+ S.books.forEach(b=>{if((b.category||'').includes('การเงิน'))counts['การเงิน']=(counts['การเงิน']||0);});
+ document.getElementById('cats').innerHTML=CATS.map(c=>{
+  const real=S.books.filter(b=>(b.category||'').includes(c.n)|| (c.n==='การเงิน'&&(b.category||'').includes('การเงิน'))).length;
+  const cnt=real>0?real+' เล่ม':'เร็วๆ นี้';
+  return `<div class="cat" onclick="scrollTo2('recSec')">
+   <div class="ic" style="background:${grad(c.v)}"><span style="color:#fff;font-size:18px">${c.ic}</span></div>
+   <h3>${c.n}</h3><div class="cnt">${cnt}</div></div>`;}).join('');
+}
+function coverHTML(title,cat,v,soon){
+ return `<div class="cover" style="background:${grad(v)}">
+  ${soon?'<div class="ribbon">เร็วๆ นี้</div>':''}
+  <div class="ctop">${cat||''}</div>
+  <div class="ctitle">${title}</div>
+  <div class="cbrand">◈ SolveBook</div></div>`;
+}
+function renderBooks(list){
+ const real=(list||S.books).map(b=>`
+  <div class="book" onclick="openBook('${b.id}')">
+   ${coverHTML(b.title,b.category,b.is_free?'--fin':'--gold',false)}
+   <div class="book-meta"><div class="book-title">${b.title}</div>
+     <span class="badge ${b.is_free?'free':'soon'}">${b.is_free?'ฟรี':b.price_thb+' ฿'}</span></div>
+   <div class="rate"><span>⏱ ${b.reading_time_min||'-'} นาที</span><span><b>★ ใหม่</b></span></div>
+  </div>`).join('');
+ const soon=SOON.map(s=>`
+  <div class="book soon">
+   ${coverHTML(s.title,s.cat,s.v,true)}
+   <div class="book-meta"><div class="book-title">${s.title}</div>
+     <span class="badge soon">เร็วๆ นี้</span></div>
+   <div class="rate"><span>⏱ 5 นาที</span></div>
+  </div>`).join('');
+ document.getElementById('books').innerHTML=real+soon;
+}
+function renderMinis(){
+ document.getElementById('minis').innerHTML=MINIS.map(m=>`
+  <div class="mini"><div class="sq" style="background:${grad(m.v)}">5'</div>
+   <div><h4>${m.title}</h4><div class="t">⏱ ${m.t} · เร็วๆ นี้</div></div></div>`).join('');
+}
+function filterBooks(q){
+ q=(q||'').trim();
+ if(!q){renderBooks();return;}
+ renderBooks(S.books.filter(b=>b.title.includes(q)||(b.description||'').includes(q)||(b.category||'').includes(q)));
+}
+
+// ---- auth ----
+async function refreshAuth(){const{data}=await sb.auth.getUser();S.user=data?.user||null;
+ document.getElementById('authArea').innerHTML=S.user
+  ?`<button class="btn-ink" onclick="signOut()">ออก</button>`
+  :`<button class="btn-ink" onclick="openAuth()">เข้าสู่ระบบ</button>`;}
+function openAuth(){document.getElementById('authModal').classList.add('on');}
+function closeAuth(){document.getElementById('authModal').classList.remove('on');document.getElementById('authMsg').textContent='';}
+function toggleMode(){S.mode=S.mode==='login'?'signup':'login';const t=S.mode==='login';
+ document.getElementById('authTitle').textContent=t?'เข้าสู่ระบบ':'สมัครสมาชิก';
+ document.getElementById('authBtn').textContent=t?'เข้าสู่ระบบ':'สมัครสมาชิก';
+ document.getElementById('authToggle').textContent=t?'ยังไม่มีบัญชี? สมัคร':'มีบัญชีแล้ว? เข้าสู่ระบบ';
+ document.getElementById('signupFields').style.display=t?'none':'block';if(!t)buildChips();}
+function buildChips(){const el=document.getElementById('chips');if(el.dataset.done)return;
+ el.innerHTML=CATS.map(c=>`<button type="button" class="chip" data-n="${c.n}" onclick="toggleChip(this)">${c.n}</button>`).join('');el.dataset.done=1;}
+function toggleChip(b){const n=b.dataset.n;if(S.sel.has(n)){S.sel.delete(n);b.classList.remove('on');}else{S.sel.add(n);b.classList.add('on');}}
+async function doAuth(){const email=email_.value.trim(),pass=pass_.value,msg=document.getElementById('authMsg');
+ msg.style.color='#b4532b';msg.textContent='';if(!email||!pass){msg.textContent='กรอกอีเมลและรหัสผ่าน';return;}
+ let r;
+ if(S.mode==='login'){r=await sb.auth.signInWithPassword({email,password:pass});}
+ else{
+   const interests=[...S.sel];
+   const goal=(document.getElementById('goal').value||'').trim();
+   const age_range=document.getElementById('age').value||null;
+   const occupation=(document.getElementById('occ').value||'').trim()||null;
+   r=await sb.auth.signUp({email,password:pass,options:{data:{interests,goal:goal||null,age_range,occupation,signup_source:'web'}}});
+   if(!r.error&&(goal||interests.length)){const uid=r.data.user?.id||null;
+     try{await sb.from('content_requests').insert({user_id:uid,text:goal||null,category:interests[0]||null});}catch(e){}}
+ }
+ if(r.error){msg.textContent=r.error.message;return;}
+ if(S.mode==='signup'&&!r.data.session){msg.style.color='var(--fin)';msg.textContent='สมัครสำเร็จ! ยืนยันอีเมลแล้วเข้าสู่ระบบ';return;}
+ closeAuth();refreshAuth();}
+async function signOut(){await sb.auth.signOut();refreshAuth();}
+const email_=document.getElementById('email'),pass_=document.getElementById('pass');
+
+// ---- data ----
+async function load(){
+ const{data}=await sb.from('books').select('*').eq('status','published').order('sort_order');
+ S.books=data||[];renderCats();renderBooks();renderMinis();
+}
+async function openBook(id){
+ const b=S.books.find(x=>x.id===id);if(!b)return;S.book=b;go('detail');
+ document.getElementById('detailHead').innerHTML=`
+  <div style="display:grid;grid-template-columns:140px 1fr;gap:22px;align-items:start">
+   <div>${coverHTML(b.title,b.category,b.is_free?'--fin':'--gold',false)}</div>
+   <div><h2 class="serif" style="font-size:1.8rem">${b.title}</h2>
+    <p class="serif" style="color:var(--gold-d);font-size:1.1rem;margin-top:4px">${b.subtitle||''}</p>
+    <p style="margin-top:14px;color:var(--ink2)">${b.description||''}</p>
+    <p style="margin-top:12px;color:var(--muted);font-size:.9rem">⏱ อ่านประมาณ ${b.reading_time_min||'-'} นาที · 
+     <span class="badge ${b.is_free?'free':'soon'}">${b.is_free?'ฟรี':b.price_thb+' ฿'}</span></p>
+   </div></div>`;
+ const{data}=await sb.from('chapters').select('idx,title').eq('book_id',id).order('idx');
+ const toc=document.getElementById('toc');
+ if(!data||!data.length){toc.innerHTML=`<div class="toc-item" style="cursor:default;color:var(--muted)">${b.is_free?'ยังไม่มีเนื้อหา':'🔒 ต้องซื้อก่อนถึงอ่านได้'}</div>`;return;}
+ toc.innerHTML=`<button class="btn-lg btn-primary" style="margin-top:16px" onclick="start()">เริ่มอ่าน →</button>`+
+  data.map(c=>`<div class="toc-item" onclick="openCh(${c.idx-1})"><span class="n">${c.idx}</span>${c.title}</div>`).join('');
+}
+async function loadCh(){if(S.ch.length&&S.ch[0].book_id===S.book.id)return;
+ const{data}=await sb.from('chapters').select('*').eq('book_id',S.book.id).order('idx');S.ch=data||[];}
+async function start(){await loadCh();openCh(0);}
+async function openCh(i){await loadCh();if(!S.ch.length){alert('อ่านไม่ได้ตอนนี้');return;}
+ S.ci=Math.max(0,Math.min(i,S.ch.length-1));const c=S.ch[S.ci];go('reader');
+ document.getElementById('rk').textContent=c.title.includes('ก้าว')?c.title.split(':')[0]:S.book.title;
+ document.getElementById('rTitle').textContent=c.title;
+ document.getElementById('rBody').textContent=c.body||'';
+ document.getElementById('rProg').textContent=`${S.ci+1} / ${S.ch.length}`;
+ document.getElementById('prevBtn').style.visibility=S.ci===0?'hidden':'visible';
+ document.getElementById('nextBtn').textContent=S.ci===S.ch.length-1?'จบเล่ม ✓':'ถัดไป';
+ window.scrollTo({top:0,behavior:'smooth'});}
+function move(d){if(d>0&&S.ci===S.ch.length-1){backToDetail();return;}openCh(S.ci+d);}
+function backToDetail(){openBook(S.book.id);}
+function myShelf(){go('home');scrollTo2('recSec');}
+
+// ---- nav ----
+function go(v){['home','detail','reader'].forEach(x=>document.getElementById(x).classList.toggle('on',x===v));window.scrollTo({top:0});}
+function scrollTo2(id){go('home');setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),60);}
+function toggleDrawer(o){document.getElementById('drawer').classList.toggle('on',o);}
+
+(async()=>{await refreshAuth();sb.auth.onAuthStateChange(()=>refreshAuth());await load();})();
+</script>
+</body>
+</html>
