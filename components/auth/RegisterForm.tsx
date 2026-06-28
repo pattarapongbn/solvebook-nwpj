@@ -10,7 +10,7 @@ export function RegisterForm() {
   const router = useRouter()
   const supabase = createClient()
   const [form, setForm] = useState({
-    name: '', email: '', password: '', age: '', gender: '', occupation: '',
+    name: '', email: '', password: '', age: '', gender: '', occupation: '', occupationOther: '',
   })
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -29,7 +29,7 @@ export function RegisterForm() {
           full_name: form.name,
           age: form.age,
           gender: form.gender,
-          occupation: form.occupation,
+          occupation: form.occupation === 'อื่นๆ' ? form.occupationOther : form.occupation,
         },
       },
     })
@@ -97,7 +97,23 @@ export function RegisterForm() {
             <option value="other">อื่นๆ</option>
           </select>
         </div>
-        <input type="text" placeholder="อาชีพ" value={form.occupation} onChange={set('occupation')} className={inputClass} />
+        <select value={form.occupation} onChange={set('occupation')} className={inputClass}>
+          <option value="">เลือกอาชีพ</option>
+          <option value="นักเรียน/นักศึกษา">นักเรียน/นักศึกษา</option>
+          <option value="พนักงานบริษัท">พนักงานบริษัท</option>
+          <option value="ข้าราชการ/รัฐวิสาหกิจ">ข้าราชการ/รัฐวิสาหกิจ</option>
+          <option value="ค้าขาย/ธุรกิจส่วนตัว">ค้าขาย/ธุรกิจส่วนตัว</option>
+          <option value="ฟรีแลนซ์">ฟรีแลนซ์</option>
+          <option value="รับจ้างทั่วไป">รับจ้างทั่วไป</option>
+          <option value="พ่อบ้าน/แม่บ้าน">พ่อบ้าน/แม่บ้าน</option>
+          <option value="เกษตรกร">เกษตรกร</option>
+          <option value="วิชาชีพเฉพาะ">วิชาชีพเฉพาะ (หมอ/ครู/วิศวกร ฯลฯ)</option>
+          <option value="ว่างงาน/กำลังหางาน">ว่างงาน/กำลังหางาน</option>
+          <option value="อื่นๆ">อื่นๆ</option>
+        </select>
+        {form.occupation === 'อื่นๆ' && (
+          <input type="text" placeholder="ระบุอาชีพ" value={form.occupationOther} onChange={set('occupationOther')} className={inputClass} />
+        )}
         <button
           type="submit"
           disabled={loading}
