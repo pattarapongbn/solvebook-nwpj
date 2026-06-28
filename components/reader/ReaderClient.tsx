@@ -48,8 +48,18 @@ const THEME_STYLES: Record<Theme, { bg: string; text: string; border: string; to
   },
 }
 
+const SETTINGS_KEY = 'reader_settings'
+
+function loadSettings() {
+  try {
+    if (typeof window === 'undefined') return {}
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') as Record<string, unknown>
+  } catch { return {} }
+}
+
 export function ReaderClient({ book, chapters, currentChapter }: Props) {
   const router = useRouter()
+  const [loaded, setLoaded] = useState(false)
   const [theme, setTheme] = useState<Theme>('light')
   const [fontSize, setFontSize] = useState<FontSize>(18)
   const [lineHeight, setLineHeight] = useState(1.95)
@@ -58,6 +68,21 @@ export function ReaderClient({ book, chapters, currentChapter }: Props) {
   const [toolbarVisible, setToolbarVisible] = useState(true)
   const [scrollPct, setScrollPct] = useState(0)
   const [lastY, setLastY] = useState(0)
+
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    const s = loadSettings()
+    if (['light','sepia','dark'].includes(s.theme as string)) setTheme(s.theme as Theme)
+    if ([14,16,18,20,22].includes(s.fontSize as number))     setFontSize(s.fontSize as FontSize)
+    if ([1.7,1.95,2.2].includes(s.lineHeight as number))     setLineHeight(s.lineHeight as number)
+    setLoaded(true)
+  }, [])
+
+  // Persist settings whenever they change (after initial load)
+  useEffect(() => {
+    if (!loaded) return
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme, fontSize, lineHeight }))
+  }, [loaded, theme, fontSize, lineHeight])
 
   const currentIndex = chapters.findIndex(c => c.id === currentChapter.id)
   const prevChapter = chapters[currentIndex - 1]

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { User, BookOpen, Settings, LogOut, ArrowLeft, ChevronRight, Pencil, Wallet } from 'lucide-react'
+import { User, BookOpen, Settings, LogOut, ArrowLeft, ChevronRight, Pencil, Wallet, LayoutDashboard } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import type { Metadata } from 'next'
@@ -14,7 +14,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, avatar_url, books_finished')
+    .select('full_name, avatar_url, books_finished, is_admin')
     .eq('id', user.id)
     .single()
 
@@ -57,6 +57,9 @@ export default async function ProfilePage() {
         <MenuItem href="/profile/edit" icon={Pencil} label="แก้ไขโปรไฟล์" />
         <MenuItem href="/wallet" icon={Wallet} label="กระเป๋าคอยน์" />
         <MenuItem href="/settings" icon={Settings} label="ตั้งค่าการอ่าน" />
+        {profile?.is_admin && (
+          <MenuItem href="/admin" icon={LayoutDashboard} label="Admin Panel" />
+        )}
         <div className="px-5 py-4">
           <SignOutButton />
         </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Menu, BookOpen, User, X, Home, Grid2X2, BookMarked, LogOut, LogIn } from 'lucide-react'
+import { Search, BookOpen, User, X, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { createClient } from '@/lib/supabase/client'
@@ -12,6 +12,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 export function Header() {
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [walletBalance, setWalletBalance] = useState<number | null>(null)
   const [showSearch, setShowSearch] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
@@ -27,6 +28,17 @@ export function Header() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Fetch wallet balance when user changes
+  useEffect(() => {
+    if (!user) { setWalletBalance(null); return }
+    supabase
+      .from('wallets')
+      .select('balance')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => setWalletBalance(data?.balance ?? 0))
+  }, [user])
+
   useEffect(() => {
     if (showSearch) searchRef.current?.focus()
   }, [showSearch])
@@ -40,12 +52,7 @@ export function Header() {
     }
   }
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.refresh()
-  }
-
-  const openLogin = () => { setAuthMode('login'); setShowAuth(true) }
+  const openLogin    = () => { setAuthMode('login');    setShowAuth(true) }
   const openRegister = () => { setAuthMode('register'); setShowAuth(true) }
 
   return (
@@ -76,7 +83,7 @@ export function Header() {
             </div>
 
             <div className="flex items-center gap-2 ml-auto">
-              {/* Nav links */}
+              {/* Desktop nav links */}
               <nav className="hidden md:flex items-center gap-1">
                 <Link href="/categories" className="px-3 py-2 text-sm text-brown-600 hover:text-brown-800 hover:bg-ivory rounded-xl transition-colors">
                   หมวดหมู่
@@ -87,6 +94,17 @@ export function Header() {
                   </Link>
                 )}
               </nav>
+
+              {/* Coin balance chip (logged-in users) */}
+              {user && (
+                <Link
+                  href="/wallet/topup"
+                  className="flex items-center gap-1.5 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors"
+                >
+                  <Coins className="w-3.5 h-3.5" />
+                  {walletBalance !== null ? walletBalance : '—'}
+                </Link>
+              )}
 
               {/* Mobile search */}
               <button
@@ -105,18 +123,15 @@ export function Header() {
                   </div>
                 </Link>
               ) : (
-                <div className="hidden md:flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={openLogin}>
                     เข้าสู่ระบบ
                   </Button>
-                  <Button size="sm" onClick={openRegister}>
+                  <Button size="sm" onClick={openRegister} className="hidden md:inline-flex">
                     สมัครสมาชิก
                   </Button>
                 </div>
               )}
-
-              {/* Hamburger */}
-              <MobileMenuButton />
             </div>
           </div>
         </div>
@@ -150,92 +165,5 @@ export function Header() {
         onSuccess={() => { setShowAuth(false); router.refresh() }}
       />
     </>
-  )
-}
-
-function MobileMenuButton() {
-  const [open, setOpen] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
-  const [user, setUser] = useState<SupabaseUser | null>(null)
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const nav = (href: string) => { setOpen(false); router.push(href) }
-
-  return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="md:hidden p-2 text-brown-500 hover:text-brown-700 hover:bg-ivory rounded-xl transition-colors"
-        aria-label="เมนู"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
-
-      {open && (
-        <>
-          <div className="fixed inset-0 z-50 bg-brown-900/30 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="fixed top-0 right-0 h-full w-80 max-w-[85vw] z-50 bg-white shadow-warm-lg flex flex-col">
-            <div className="flex items-center justify-between px-5 py-5 border-b border-brown-100">
-              <span className="font-serif font-semibold text-brown-800 text-lg">SolveBook</span>
-              <button onClick={() => setOpen(false)} className="p-2 text-brown-400 hover:text-brown-600 hover:bg-ivory rounded-xl transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <nav className="flex-1 overflow-y-auto p-5 space-y-1">
-              <DrawerItem onClick={() => nav('/')} icon={Home} label="หน้าหลัก" />
-              <DrawerItem onClick={() => nav('/categories')} icon={Grid2X2} label="หมวดหมู่ทั้งหมด" />
-              <DrawerItem onClick={() => nav('/search')} icon={Search} label="ค้นหา" />
-              {user && (
-                <>
-                  <div className="border-t border-brown-100 my-3" />
-                  <DrawerItem onClick={() => nav('/library')} icon={BookMarked} label="ชั้นหนังสือของฉัน" />
-                  <DrawerItem onClick={() => nav('/profile')} icon={User} label="โปรไฟล์" />
-                </>
-              )}
-              <div className="border-t border-brown-100 my-3" />
-              {user ? (
-                <button
-                  onClick={async () => { await supabase.auth.signOut(); setOpen(false); router.refresh() }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>ออกจากระบบ</span>
-                </button>
-              ) : (
-                <>
-                  <DrawerItem onClick={() => nav('/login')} icon={LogIn} label="เข้าสู่ระบบ" />
-                  <button
-                    onClick={() => nav('/register')}
-                    className="w-full mt-2 bg-orange-500 text-white py-3 rounded-2xl text-sm font-medium hover:bg-orange-600 transition-colors"
-                  >
-                    สมัครสมาชิกฟรี
-                  </button>
-                </>
-              )}
-            </nav>
-          </div>
-        </>
-      )}
-    </>
-  )
-}
-
-function DrawerItem({ onClick, icon: Icon, label }: { onClick: () => void; icon: React.ElementType; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm text-brown-700 hover:bg-ivory hover:text-brown-900 transition-colors text-left"
-    >
-      <Icon className="w-4 h-4 text-brown-400" />
-      <span>{label}</span>
-    </button>
   )
 }
