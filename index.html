@@ -90,6 +90,8 @@ section.blk{padding:28px 0}
 .cat-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
 .cat-ic{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
 .cat-ic svg{width:22px;height:22px;color:#fff}
+.cat-ic-img{width:64px;height:64px;border-radius:14px;overflow:hidden;margin:0 auto 10px;box-shadow:0 4px 12px rgba(0,0,0,.10)}
+.cat-ic-img img{width:100%;height:100%;object-fit:cover;display:block}
 .cat-card h3{font-size:.83rem;font-weight:600;color:var(--text);line-height:1.3}
 .cat-card .cnt{font-size:.76rem;color:var(--muted);margin-top:2px}
 
@@ -262,8 +264,10 @@ footer{text-align:center;color:var(--muted);padding:28px 0 80px;font-size:.84rem
           <div class="float-bub b2 accent">เงินไม่พอ</div>
           <div class="float-bub b3">ขายของไม่ได้</div>
           <div class="float-bub b4">นอนไม่หลับ</div>
-          <!-- Person illustration -->
-          <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+          <!-- Person illustration (3D generated) -->
+          <img src="/img/hero.png" alt="hero" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain" loading="eager">
+          <!-- hidden SVG kept for fallback structure -->
+          <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none">
             <!-- Soft bg circle -->
             <ellipse cx="200" cy="200" rx="160" ry="140" fill="#FFF4EC" opacity=".6"/>
             <!-- Desk -->
@@ -554,14 +558,14 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 let S={books:[],book:null,ch:[],ci:0,user:null,mode:'login',sel:new Set()};
 
 const CATS=[
-  {n:'การเงิน',   v:'--c-fin',  cnt:128, svg:'<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.6" fill="none"/><text x="12" y="17" text-anchor="middle" font-size="11" fill="currentColor" font-family="Sarabun,sans-serif" font-weight="700">฿</text>'},
-  {n:'ธุรกิจ',    v:'--c-biz',  cnt:156, svg:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'},
-  {n:'การพัฒนาตนเอง',v:'--c-self',cnt:142,svg:'<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M16 4l2-2M20 8h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>'},
-  {n:'สุขภาพ',    v:'--c-health',cnt:98, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
-  {n:'ความรัก',   v:'--c-love', cnt:74,  svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="currentColor" opacity=".8"/>'},
-  {n:'การทำงาน',  v:'--c-work', cnt:132, svg:'<rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/>'},
-  {n:'จิตวิทยา',  v:'--c-psy',  cnt:87,  svg:'<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M9 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/><circle cx="12" cy="17" r="1" fill="currentColor"/>'},
-  {n:'การเรียน',  v:'--c-study',cnt:93,  svg:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
+  {n:'การเงิน',   v:'--c-fin',  cnt:128, img:'/img/cat-fin.png',  svg:'<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.6" fill="none"/><text x="12" y="17" text-anchor="middle" font-size="11" fill="currentColor" font-family="Sarabun,sans-serif" font-weight="700">฿</text>'},
+  {n:'ธุรกิจ',    v:'--c-biz',  cnt:156, img:'/img/cat-biz.png',  svg:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'},
+  {n:'การพัฒนาตนเอง',v:'--c-self',cnt:142,img:'/img/cat-self.png',svg:'<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M16 4l2-2M20 8h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>'},
+  {n:'สุขภาพ',    v:'--c-health',cnt:98, img:null, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
+  {n:'ความรัก',   v:'--c-love', cnt:74,  img:null, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="currentColor" opacity=".8"/>'},
+  {n:'การทำงาน',  v:'--c-work', cnt:132, img:null, svg:'<rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/>'},
+  {n:'จิตวิทยา',  v:'--c-psy',  cnt:87,  img:null, svg:'<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M9 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/><circle cx="12" cy="17" r="1" fill="currentColor"/>'},
+  {n:'การเรียน',  v:'--c-study',cnt:93,  img:null, svg:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
 ];
 
 const SOON=[
@@ -593,9 +597,10 @@ function shade(hex,p){
 function renderCats(){
   document.getElementById('cats').innerHTML=CATS.map(c=>`
     <div class="cat-card" onclick="filterCat('${esc(c.n)}')" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
-      <div class="cat-ic" style="background:${grad(c.v)}">
-        <svg viewBox="0 0 24 24" width="22" height="22">${c.svg}</svg>
-      </div>
+      ${c.img
+        ? `<div class="cat-ic-img"><img src="${c.img}" alt="${esc(c.n)}" loading="lazy"></div>`
+        : `<div class="cat-ic" style="background:${grad(c.v)}"><svg viewBox="0 0 24 24" width="22" height="22">${c.svg}</svg></div>`
+      }
       <h3>${esc(c.n)}</h3>
       <div class="cnt">${c.cnt} เล่ม</div>
     </div>`).join('');
