@@ -88,10 +88,8 @@ section.blk{padding:28px 0}
 .cats-row{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
 .cat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 10px;cursor:pointer;transition:transform .15s,box-shadow .15s;text-align:center}
 .cat-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
-.cat-ic{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.cat-ic svg{width:22px;height:22px;color:#fff}
-.cat-ic-img{width:64px;height:64px;border-radius:14px;overflow:hidden;margin:0 auto 10px;box-shadow:0 4px 12px rgba(0,0,0,.10)}
-.cat-ic-img img{width:100%;height:100%;object-fit:cover;display:block}
+.cat-ic{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.cat-ic svg{width:26px;height:26px;color:#fff}
 .cat-card h3{font-size:.83rem;font-weight:600;color:var(--text);line-height:1.3}
 .cat-card .cnt{font-size:.76rem;color:var(--muted);margin-top:2px}
 
@@ -264,51 +262,80 @@ footer{text-align:center;color:var(--muted);padding:28px 0 80px;font-size:.84rem
           <div class="float-bub b2 accent">เงินไม่พอ</div>
           <div class="float-bub b3">ขายของไม่ได้</div>
           <div class="float-bub b4">นอนไม่หลับ</div>
-          <!-- Person illustration (3D generated) -->
-          <img src="/img/hero.png" alt="hero" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain" loading="eager">
-          <!-- hidden SVG kept for fallback structure -->
-          <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none">
-            <!-- Soft bg circle -->
-            <ellipse cx="200" cy="200" rx="160" ry="140" fill="#FFF4EC" opacity=".6"/>
-            <!-- Desk -->
-            <rect x="100" y="290" width="200" height="12" rx="6" fill="#C8A882"/>
-            <rect x="118" y="300" width="10" height="40" rx="5" fill="#B09060"/>
-            <rect x="272" y="300" width="10" height="40" rx="5" fill="#B09060"/>
-            <!-- Book on desk -->
-            <rect x="185" y="272" width="55" height="18" rx="3" fill="#4A90D9"/>
-            <rect x="187" y="269" width="51" height="18" rx="3" fill="#2E6BBF"/>
+          <!-- Person illustration -->
+          <svg viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+            <!-- Background blob -->
+            <ellipse cx="210" cy="195" rx="175" ry="155" fill="#FFF4EC" opacity=".75"/>
+            <!-- Decorative dots -->
+            <circle cx="58" cy="80" r="6" fill="#F47920" opacity=".18"/>
+            <circle cx="72" cy="96" r="4" fill="#F47920" opacity=".12"/>
+            <circle cx="352" cy="72" r="8" fill="#F5A623" opacity=".15"/>
+            <circle cx="368" cy="92" r="5" fill="#F5A623" opacity=".10"/>
+            <circle cx="340" cy="290" r="6" fill="#5DAD42" opacity=".15"/>
+            <circle cx="78" cy="290" r="7" fill="#4A90D9" opacity=".14"/>
+            <!-- Small decorative books stack top-right -->
+            <rect x="330" y="118" width="36" height="9" rx="3" fill="#4A90D9" opacity=".7"/>
+            <rect x="326" y="127" width="40" height="9" rx="3" fill="#F47920" opacity=".7"/>
+            <rect x="330" y="136" width="34" height="9" rx="3" fill="#5DAD42" opacity=".7"/>
+            <!-- Desk surface -->
+            <rect x="90" y="295" width="240" height="14" rx="7" fill="#D4B896"/>
+            <rect x="108" y="307" width="12" height="38" rx="6" fill="#C0A07C"/>
+            <rect x="300" y="307" width="12" height="38" rx="6" fill="#C0A07C"/>
+            <!-- Books on desk -->
+            <rect x="178" y="276" width="60" height="19" rx="4" fill="#4A90D9"/>
+            <rect x="180" y="273" width="56" height="19" rx="4" fill="#2E6BBF"/>
+            <rect x="140" y="280" width="38" height="15" rx="3" fill="#F47920" opacity=".85"/>
             <!-- Mug -->
-            <rect x="264" y="270" width="26" height="22" rx="5" fill="#EFEFEF" stroke="#DDD" stroke-width="1"/>
-            <path d="M290 276 Q302 276 302 283 Q302 290 290 290" fill="none" stroke="#CCC" stroke-width="2.5" stroke-linecap="round"/>
+            <rect x="268" y="272" width="28" height="24" rx="6" fill="#F8F8F8" stroke="#E0E0E0" stroke-width="1.5"/>
+            <path d="M296 278 Q308 278 308 286 Q308 294 296 294" fill="none" stroke="#DDD" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Steam from mug -->
+            <path d="M276 268 Q278 262 276 256" fill="none" stroke="#E8D0B0" stroke-width="2" stroke-linecap="round"/>
+            <path d="M282 266 Q284 260 282 254" fill="none" stroke="#E8D0B0" stroke-width="2" stroke-linecap="round"/>
+            <!-- Plant -->
+            <rect x="100" y="268" width="22" height="27" rx="4" fill="#D4956A" opacity=".7"/>
+            <ellipse cx="111" cy="258" rx="14" ry="18" fill="#5DAD42" opacity=".85"/>
+            <ellipse cx="99" cy="264" rx="9" ry="13" fill="#4A9A32" opacity=".7"/>
+            <ellipse cx="123" cy="263" rx="8" ry="12" fill="#4A9A32" opacity=".7"/>
             <!-- Body -->
-            <rect x="168" y="218" width="64" height="72" rx="14" fill="#5DAD42"/>
-            <!-- Left arm -->
-            <path d="M168 235 Q148 260 144 285" fill="none" stroke="#5DAD42" stroke-width="18" stroke-linecap="round"/>
-            <!-- Right arm on table / chin area -->
-            <path d="M232 240 Q252 250 256 270" fill="none" stroke="#5DAD42" stroke-width="16" stroke-linecap="round"/>
+            <rect x="174" y="222" width="72" height="76" rx="16" fill="#5DAD42"/>
+            <!-- Collar -->
+            <path d="M196 222 L210 242 L224 222" fill="none" stroke="#4A9A32" stroke-width="2"/>
+            <!-- Left arm resting on desk -->
+            <path d="M174 242 Q152 268 148 292" fill="none" stroke="#5DAD42" stroke-width="20" stroke-linecap="round"/>
+            <!-- Right arm -->
+            <path d="M246 245 Q264 260 268 285" fill="none" stroke="#5DAD42" stroke-width="18" stroke-linecap="round"/>
+            <!-- Neck -->
+            <rect x="198" y="210" width="24" height="20" rx="8" fill="#FDDCB0"/>
             <!-- Head -->
-            <circle cx="200" cy="172" r="50" fill="#FDDCB0"/>
+            <circle cx="210" cy="172" r="52" fill="#FDDCB0"/>
+            <!-- Ear left -->
+            <ellipse cx="158" cy="175" rx="8" ry="10" fill="#FDDCB0"/>
+            <!-- Ear right -->
+            <ellipse cx="262" cy="175" rx="8" ry="10" fill="#FDDCB0"/>
             <!-- Hair -->
-            <path d="M155 165 Q160 122 200 116 Q240 122 245 165 Q238 132 200 128 Q162 132 155 165Z" fill="#2C2C2C"/>
-            <path d="M155 165 Q152 148 158 138" fill="none" stroke="#2C2C2C" stroke-width="5" stroke-linecap="round"/>
-            <path d="M245 165 Q248 148 242 138" fill="none" stroke="#2C2C2C" stroke-width="5" stroke-linecap="round"/>
+            <path d="M161 162 Q167 118 210 112 Q253 118 259 162 Q252 128 210 122 Q168 128 161 162Z" fill="#2C2C2C"/>
+            <path d="M161 162 Q158 144 164 132" fill="none" stroke="#2C2C2C" stroke-width="6" stroke-linecap="round"/>
+            <path d="M259 162 Q262 144 256 132" fill="none" stroke="#2C2C2C" stroke-width="6" stroke-linecap="round"/>
             <!-- Eyebrows -->
-            <path d="M181 162 Q188 157 195 162" fill="none" stroke="#5C3D18" stroke-width="2" stroke-linecap="round"/>
-            <path d="M205 162 Q212 157 219 162" fill="none" stroke="#5C3D18" stroke-width="2" stroke-linecap="round"/>
-            <!-- Eyes -->
-            <circle cx="188" cy="170" r="4.5" fill="#333"/>
-            <circle cx="212" cy="170" r="4.5" fill="#333"/>
-            <circle cx="190" cy="168" r="1.5" fill="#fff"/>
-            <circle cx="214" cy="168" r="1.5" fill="#fff"/>
+            <path d="M188 162 Q196 156 204 162" fill="none" stroke="#5C3D18" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M216 162 Q224 156 232 162" fill="none" stroke="#5C3D18" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Eyes closed/thinking look -->
+            <path d="M190 172 Q196 177 202 172" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M218 172 Q224 177 230 172" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
             <!-- Nose -->
-            <path d="M198 178 Q200 184 202 178" fill="none" stroke="#D4956A" stroke-width="1.5" stroke-linecap="round"/>
-            <!-- Mouth slight smile -->
-            <path d="M192 188 Q200 196 208 188" fill="none" stroke="#C08060" stroke-width="2" stroke-linecap="round"/>
-            <!-- Cheeks -->
-            <ellipse cx="175" cy="182" rx="11" ry="6" fill="#F4A0A0" opacity=".35"/>
-            <ellipse cx="225" cy="182" rx="11" ry="6" fill="#F4A0A0" opacity=".35"/>
-            <!-- Hand on chin -->
-            <ellipse cx="200" cy="204" rx="18" ry="13" fill="#FDDCB0"/>
+            <path d="M206 180 Q210 188 214 180" fill="none" stroke="#D4956A" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Smile -->
+            <path d="M198 194 Q210 204 222 194" fill="none" stroke="#C08060" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Cheeks blush -->
+            <ellipse cx="182" cy="186" rx="12" ry="7" fill="#F4A0A0" opacity=".3"/>
+            <ellipse cx="238" cy="186" rx="12" ry="7" fill="#F4A0A0" opacity=".3"/>
+            <!-- Hand on chin pose -->
+            <ellipse cx="190" cy="208" rx="22" ry="14" fill="#FDDCB0"/>
+            <!-- Thought bubble -->
+            <circle cx="284" cy="116" r="3" fill="#F47920" opacity=".4"/>
+            <circle cx="295" cy="106" r="5" fill="#F47920" opacity=".35"/>
+            <circle cx="308" cy="93" r="8" fill="#FFF4EC" stroke="#F47920" stroke-width="1.5" opacity=".9"/>
+            <text x="308" y="97" text-anchor="middle" font-size="9" fill="#F47920" font-family="Sarabun,sans-serif" font-weight="700">?</text>
           </svg>
         </div>
       </div>
@@ -558,14 +585,14 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 let S={books:[],book:null,ch:[],ci:0,user:null,mode:'login',sel:new Set()};
 
 const CATS=[
-  {n:'การเงิน',   v:'--c-fin',  cnt:128, img:'/img/cat-fin.png',  svg:'<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.6" fill="none"/><text x="12" y="17" text-anchor="middle" font-size="11" fill="currentColor" font-family="Sarabun,sans-serif" font-weight="700">฿</text>'},
-  {n:'ธุรกิจ',    v:'--c-biz',  cnt:156, img:'/img/cat-biz.png',  svg:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'},
-  {n:'การพัฒนาตนเอง',v:'--c-self',cnt:142,img:'/img/cat-self.png',svg:'<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M16 4l2-2M20 8h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>'},
-  {n:'สุขภาพ',    v:'--c-health',cnt:98, img:null, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
-  {n:'ความรัก',   v:'--c-love', cnt:74,  img:null, svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="currentColor" opacity=".8"/>'},
-  {n:'การทำงาน',  v:'--c-work', cnt:132, img:null, svg:'<rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/>'},
-  {n:'จิตวิทยา',  v:'--c-psy',  cnt:87,  img:null, svg:'<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M9 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/><circle cx="12" cy="17" r="1" fill="currentColor"/>'},
-  {n:'การเรียน',  v:'--c-study',cnt:93,  img:null, svg:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
+  {n:'การเงิน',      v:'--c-fin',   cnt:128, svg:'<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.6" fill="none"/><text x="12" y="17" text-anchor="middle" font-size="11" fill="currentColor" font-family="Sarabun,sans-serif" font-weight="700">฿</text>'},
+  {n:'ธุรกิจ',       v:'--c-biz',   cnt:156, svg:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'},
+  {n:'การพัฒนาตนเอง',v:'--c-self',  cnt:142, svg:'<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M16 4l2-2M20 8h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>'},
+  {n:'สุขภาพ',       v:'--c-health',cnt:98,  svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
+  {n:'ความรัก',      v:'--c-love',  cnt:74,  svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7" fill="currentColor" opacity=".8"/>'},
+  {n:'การทำงาน',     v:'--c-work',  cnt:132, svg:'<rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/>'},
+  {n:'จิตวิทยา',     v:'--c-psy',   cnt:87,  svg:'<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M9 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/><circle cx="12" cy="17" r="1" fill="currentColor"/>'},
+  {n:'การเรียน',     v:'--c-study', cnt:93,  svg:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>'},
 ];
 
 const SOON=[
@@ -597,10 +624,7 @@ function shade(hex,p){
 function renderCats(){
   document.getElementById('cats').innerHTML=CATS.map(c=>`
     <div class="cat-card" onclick="filterCat('${esc(c.n)}')" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
-      ${c.img
-        ? `<div class="cat-ic-img"><img src="${c.img}" alt="${esc(c.n)}" loading="lazy"></div>`
-        : `<div class="cat-ic" style="background:${grad(c.v)}"><svg viewBox="0 0 24 24" width="22" height="22">${c.svg}</svg></div>`
-      }
+      <div class="cat-ic" style="background:${grad(c.v)}"><svg viewBox="0 0 24 24" width="22" height="22">${c.svg}</svg></div>
       <h3>${esc(c.n)}</h3>
       <div class="cnt">${c.cnt} เล่ม</div>
     </div>`).join('');
