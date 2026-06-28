@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, LayoutDashboard, Book, Users, Tag, LogOut } from 'lucide-react'
+import { BookOpen, LayoutDashboard, Book, Users, Tag, LogOut, Coins } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,6 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/books" icon={Book} label="จัดการหนังสือ" />
           <AdminNavLink href="/admin/categories" icon={Tag} label="หมวดหมู่" />
           <AdminNavLink href="/admin/users" icon={Users} label="ผู้ใช้งาน" />
+          <AdminNavLink href="/admin/topups" icon={Coins} label="อนุมัติเติมคอยน์" />
         </nav>
         <div className="p-3 border-t border-brown-700">
           <Link href="/" className="flex items-center gap-2 px-3 py-2 text-sm text-brown-400 hover:text-cream rounded-xl transition-colors">

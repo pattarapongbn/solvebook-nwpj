@@ -90,6 +90,7 @@ export interface Book {
   reading_time_minutes: number
   is_published: boolean
   is_free: boolean
+  price_thb: number
   view_count: number
   rating: number
   rating_count: number
@@ -157,6 +158,53 @@ export interface AdminLog {
   resource_id: string | null
   details: Json | null
   created_at: string
+}
+
+export interface Wallet {
+  user_id: string
+  balance: number
+  updated_at: string
+}
+
+export interface CoinPackage {
+  code: string
+  label: string
+  coins: number
+  amount_thb: number
+  is_welcome: boolean
+  active: boolean
+  sort_order: number
+}
+
+export interface TopupRequest {
+  id: string
+  user_id: string
+  coins: number
+  amount_thb: number
+  slip_url: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  reviewed_by: string | null
+  reviewed_at: string | null
+  created_at: string
+}
+
+export interface CoinTransaction {
+  id: string
+  user_id: string
+  amount: number
+  kind: 'topup' | 'unlock' | 'refund' | 'admin_adjust'
+  ref_id: string | null
+  note: string | null
+  created_at: string
+}
+
+export interface Unlock {
+  id: string
+  user_id: string
+  book_id: string
+  coins_paid: number
+  created_at: string
+  book?: Book
 }
 
 export type ReaderFontSize = 'sm' | 'md' | 'lg' | 'xl'

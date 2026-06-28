@@ -4,7 +4,7 @@ import { ArrowLeft, BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { BookCard } from '@/components/books/BookCard'
 import type { Metadata } from 'next'
-import type { Book, ReadingProgress, Favorite } from '@/lib/types'
+import type { Book, ReadingProgress, Favorite, Unlock } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'ชั้นหนังสือของฉัน' }
 
@@ -13,7 +13,7 @@ export default async function LibraryPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [progressRes, favRes] = await Promise.all([
+  const [progressRes, favRes, unlocksRes] = await Promise.all([
     supabase
       .from('reading_progress')
       .select('*, book:books(*, category:categories(id,name,slug,color,icon))')
@@ -24,11 +24,17 @@ export default async function LibraryPage() {
       .select('*, book:books(*, category:categories(id,name,slug,color,icon))')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('unlocks')
+      .select('*, book:books(*, category:categories(id,name,slug,color,icon))')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
   ])
 
   const recent = (progressRes.data ?? []) as ReadingProgress[]
   const favorites = (favRes.data ?? []) as Favorite[]
-  const isEmpty = recent.length === 0 && favorites.length === 0
+  const unlocked = (unlocksRes.data ?? []) as Unlock[]
+  const isEmpty = recent.length === 0 && favorites.length === 0 && unlocked.length === 0
 
   return (
     <div className="page-fade section-wrap py-6">
@@ -68,7 +74,15 @@ export default async function LibraryPage() {
 
       {/* Section 3: ซื้อแล้ว */}
       <LibrarySection title="ซื้อแล้ว">
-        <p className="text-sm text-brown-400">ระบบจ่ายเงินยังไม่เปิดใช้งาน</p>
+        {unlocked.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {unlocked.map(u => u.book && (
+              <BookCard key={u.id} book={u.book as Book} variant="grid" />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-brown-400">ยังไม่มีหนังสือที่ซื้อ</p>
+        )}
       </LibrarySection>
 
       {isEmpty && (

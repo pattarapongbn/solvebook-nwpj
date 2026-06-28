@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { User, BookOpen, Settings, LogOut, ArrowLeft, ChevronRight, Pencil } from 'lucide-react'
+import { User, BookOpen, Settings, LogOut, ArrowLeft, ChevronRight, Pencil, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import type { Metadata } from 'next'
@@ -55,6 +55,7 @@ export default async function ProfilePage() {
       {/* Menu */}
       <div className="border border-brown-100 rounded-3xl overflow-hidden divide-y divide-brown-100 bg-white">
         <MenuItem href="/profile/edit" icon={Pencil} label="แก้ไขโปรไฟล์" />
+        <MenuItem href="/wallet" icon={Wallet} label="กระเป๋าคอยน์" />
         <MenuItem href="/settings" icon={Settings} label="ตั้งค่าการอ่าน" />
         <div className="px-5 py-4">
           <SignOutButton />

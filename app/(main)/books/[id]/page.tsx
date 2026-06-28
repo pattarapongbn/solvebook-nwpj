@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { BookCover } from '@/components/books/BookCover'
 import { BookCard } from '@/components/books/BookCard'
 import { HorizontalScroll } from '@/components/books/HorizontalScroll'
+import { UnlockButton } from '@/components/wallet/UnlockButton'
 import { Badge } from '@/components/ui/badge'
 import { getCategoryIcon } from '@/lib/category-icons'
 import { formatReadingTime, formatNumber } from '@/lib/utils'
@@ -64,19 +65,42 @@ export default async function BookPage({ params }: Props) {
   ])
 
   let readingProgress: { chapter_id: string | null; progress_percent: number } | null = null
+  let isUnlocked = false
+  let walletBalance: number | null = null
   const user = userRes.data.user
   if (user) {
-    const { data: prog } = await supabase
-      .from('reading_progress')
-      .select('chapter_id, progress_percent')
-      .eq('user_id', user.id)
-      .eq('book_id', id)
-      .single()
-    readingProgress = prog
+    const queries: Promise<unknown>[] = [
+      supabase
+        .from('reading_progress')
+        .select('chapter_id, progress_percent')
+        .eq('user_id', user.id)
+        .eq('book_id', id)
+        .single()
+        .then(r => { readingProgress = r.data }),
+    ]
+    if (!book.is_free) {
+      queries.push(
+        supabase
+          .from('unlocks')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('book_id', id)
+          .maybeSingle()
+          .then(r => { isUnlocked = !!r.data }),
+        supabase
+          .from('wallets')
+          .select('balance')
+          .eq('user_id', user.id)
+          .maybeSingle()
+          .then(r => { walletBalance = r.data?.balance ?? 0 }),
+      )
+    }
+    await Promise.all(queries)
   }
 
+  const canRead = book.is_free || isUnlocked
   const totalTime = chapters.reduce((s, c) => s + (c.reading_time_minutes ?? 0), 0) || book.reading_time_minutes
-  const startChapterId = readingProgress?.chapter_id ?? chapters[0]?.id
+  const startChapterId = readingProgress?.chapter_id ?? chapters[0]?.id ?? null
   const ctaText = readingProgress ? 'อ่านต่อ' : 'เริ่มอ่าน'
   const related = (relatedRes.data ?? []) as Book[]
   const CategoryIcon = book.category ? getCategoryIcon(book.category.slug) : null
@@ -171,15 +195,26 @@ export default async function BookPage({ params }: Props) {
             )}
 
             {/* Desktop CTA */}
-            {chapters.length > 0 && startChapterId && (
+            {chapters.length > 0 && (
               <div className="hidden md:block mt-6">
-                <Link
-                  href={`/read/${book.id}/${startChapterId}`}
-                  className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-2xl px-6 py-3 text-sm transition-colors"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  {ctaText}
-                </Link>
+                {canRead && startChapterId ? (
+                  <Link
+                    href={`/read/${book.id}/${startChapterId}`}
+                    className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-2xl px-6 py-3 text-sm transition-colors"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    {ctaText}
+                  </Link>
+                ) : !canRead ? (
+                  <UnlockButton
+                    bookId={book.id}
+                    priceThb={book.price_thb ?? 0}
+                    balance={walletBalance}
+                    startChapterId={startChapterId}
+                    ctaText={ctaText}
+                    className="px-6 py-3 text-sm inline-flex w-auto"
+                  />
+                ) : null}
               </div>
             )}
           </div>
@@ -195,14 +230,25 @@ export default async function BookPage({ params }: Props) {
       </div>
 
       {/* Mobile sticky CTA */}
-      {chapters.length > 0 && startChapterId && (
+      {chapters.length > 0 && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 p-4 bg-white/95 backdrop-blur-sm border-t border-brown-100">
-          <Link
-            href={`/read/${book.id}/${startChapterId}`}
-            className="block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-center rounded-2xl py-3.5 text-base transition-colors"
-          >
-            {ctaText}
-          </Link>
+          {canRead && startChapterId ? (
+            <Link
+              href={`/read/${book.id}/${startChapterId}`}
+              className="block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-center rounded-2xl py-3.5 text-base transition-colors"
+            >
+              {ctaText}
+            </Link>
+          ) : !canRead ? (
+            <UnlockButton
+              bookId={book.id}
+              priceThb={book.price_thb ?? 0}
+              balance={walletBalance}
+              startChapterId={startChapterId}
+              ctaText={ctaText}
+              className="py-3.5 text-base"
+            />
+          ) : null}
         </div>
       )}
     </div>
