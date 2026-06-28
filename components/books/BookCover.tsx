@@ -13,6 +13,7 @@ const COVER_COLORS: Record<string, { bg: string; text: string; accent: string }>
   orange: { bg: '#3D2E1A', text: '#FFFAF0', accent: '#ED8936' },
   indigo: { bg: '#1A1A3D', text: '#EBF4FF', accent: '#7F9CF5' },
   gray:   { bg: '#2C2416', text: '#FAF8F5', accent: '#CBD5E0' },
+  brown:  { bg: '#3D2010', text: '#FAF8F5', accent: '#C4702A' },
 }
 
 interface BookCoverProps {

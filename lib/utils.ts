@@ -53,6 +53,7 @@ export function getCategoryColor(color: string): string {
     orange: '#C05621',
     indigo: '#434190',
     gray:   '#4A5568',
+    brown:  '#7B4F2E',
   }
   return map[color] ?? '#5C5346'
 }
@@ -69,6 +70,7 @@ export function getCategoryBg(color: string): string {
     orange: '#FFFAF0',
     indigo: '#EBF4FF',
     gray:   '#F7FAFC',
+    brown:  '#FEF3E8',
   }
   return map[color] ?? '#FAF8F5'
 }

@@ -58,6 +58,7 @@ export interface Profile {
   full_name: string | null
   avatar_url: string | null
   bio: string | null
+  is_admin: boolean
   reading_streak: number
   books_finished: number
   minutes_read: number

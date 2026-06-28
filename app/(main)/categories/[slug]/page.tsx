@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { BookCard } from '@/components/books/BookCard'
+import { BooksFilter } from '@/components/books/BooksFilter'
+import { getCategoryIcon } from '@/lib/category-icons'
+import { getCategoryBg, getCategoryColor } from '@/lib/utils'
 import type { Metadata } from 'next'
 import type { Book } from '@/lib/types'
 
@@ -21,12 +25,7 @@ export default async function CategoryPage({ params }: Props) {
   const { slug } = await params
   const supabase = await createClient()
 
-  const { data: cat } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('slug', slug)
-    .single()
-
+  const { data: cat } = await supabase.from('categories').select('*').eq('slug', slug).single()
   if (!cat) notFound()
 
   const { data: books } = await supabase
@@ -37,53 +36,49 @@ export default async function CategoryPage({ params }: Props) {
     .order('view_count', { ascending: false })
 
   const list = (books ?? []) as Book[]
-
-  const getCategoryBg = (color: string) => {
-    const map: Record<string, string> = {
-      amber: '#FEF3C7', blue: '#DBEAFE', green: '#DCFCE7',
-      red: '#FEE2E2', pink: '#FCE7F3', purple: '#EDE9FE',
-      teal: '#CCFBF1', orange: '#FFEDD5', indigo: '#E0E7FF', gray: '#F3F4F6',
-    }
-    return map[color] ?? '#F5F0E8'
-  }
+  const Icon = getCategoryIcon(cat.slug)
 
   return (
     <div className="page-fade">
+      {/* Sticky search */}
+      <div className="sticky top-0 z-20 bg-cream/95 backdrop-blur-sm border-b border-brown-100">
+        <div className="section-wrap py-3">
+          <Link
+            href="/search"
+            className="flex items-center gap-3 w-full px-4 py-2.5 bg-ivory border border-brown-100 rounded-2xl text-sm text-brown-400 hover:border-brown-200 transition-colors"
+          >
+            <Search className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1">ค้นหาหนังสือ...</span>
+          </Link>
+        </div>
+      </div>
+
       {/* Category header */}
       <div className="bg-ivory border-b border-brown-100">
-        <div className="section-wrap py-10">
+        <div className="section-wrap py-8">
+          <Link href="/categories" className="inline-flex p-2 -ml-2 text-brown-600 hover:text-brown-900 transition-colors mb-3">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div className="flex items-center gap-4">
             <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
+              className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: getCategoryBg(cat.color) }}
             >
-              {cat.icon}
+              <Icon className="w-6 h-6" style={{ color: getCategoryColor(cat.color) }} />
             </div>
             <div>
               <h1 className="font-serif text-display-sm text-brown-900">{cat.name}</h1>
               {cat.description && (
-                <p className="text-brown-500 mt-1 max-w-lg">{cat.description}</p>
+                <p className="text-brown-500 mt-1 max-w-lg text-sm">{cat.description}</p>
               )}
-              <p className="text-sm text-brown-400 mt-1">{list.length} เล่ม</p>
+              <p className="text-xs text-brown-400 mt-1">{list.length} เล่ม</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="section-wrap py-8">
-        {list.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-            {list.map(book => (
-              <BookCard key={book.id} book={book} variant="grid" />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 text-brown-400">
-            <p className="text-5xl mb-4">📚</p>
-            <p className="font-serif text-lg text-brown-600">ยังไม่มีหนังสือในหมวดนี้</p>
-            <p className="text-sm mt-2">กำลังจัดเตรียมเนื้อหา</p>
-          </div>
-        )}
+        <BooksFilter books={list} emptyText="ยังไม่มีหนังสือในหมวดนี้" />
       </div>
     </div>
   )

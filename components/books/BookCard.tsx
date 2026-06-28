@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { Clock, Star } from 'lucide-react'
+import { Clock, Star, Eye, Heart } from 'lucide-react'
 import { BookCover } from './BookCover'
 import { Badge } from '@/components/ui/badge'
-import { formatReadingTime } from '@/lib/utils'
+import { formatReadingTime, formatNumber } from '@/lib/utils'
 import type { Book } from '@/lib/types'
 
 interface BookCardProps {
@@ -31,15 +31,24 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
             {book.title}
           </h3>
           {book.author && <p className="text-sm text-brown-500 mt-0.5">{book.author}</p>}
+          {book.category && (
+            <p className="text-[10px] text-orange-600 font-medium mt-1">{book.category.name}</p>
+          )}
           <div className="flex items-center gap-3 mt-2 text-xs text-brown-400">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formatReadingTime(book.reading_time_minutes)}
             </span>
-            {book.rating > 0 && (
+            {book.rating > 0 && book.rating_count > 0 && (
               <span className="flex items-center gap-1">
                 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                 {book.rating.toFixed(1)}
+              </span>
+            )}
+            {book.view_count > 0 && (
+              <span className="flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                {formatNumber(book.view_count)}
               </span>
             )}
           </div>
@@ -73,37 +82,60 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
     )
   }
 
-  // Grid
+  // Grid — with free/premium badge on cover, category text, view count, heart
   return (
-    <Link href={href} className="group flex flex-col">
-      <BookCover
-        title={book.title}
-        author={book.author}
-        category={book.category?.name}
-        color={book.category?.color}
-        coverUrl={book.cover_url}
-      />
-      <div className="mt-3 flex-1 flex flex-col">
+    <div className="group flex flex-col">
+      <div className="relative">
+        <Link href={href}>
+          <BookCover
+            title={book.title}
+            author={book.author}
+            category={book.category?.name}
+            color={book.category?.color}
+            coverUrl={book.cover_url}
+          />
+        </Link>
+        <div className="absolute top-2 left-2 pointer-events-none">
+          <Badge variant={book.is_free ? 'free' : 'premium'}>
+            {book.is_free ? 'ฟรี' : 'Premium'}
+          </Badge>
+        </div>
+        <button
+          className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 backdrop-blur-sm text-brown-400 hover:text-orange-500 transition-colors shadow-sm"
+          aria-label="บันทึกหนังสือ"
+        >
+          <Heart className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <Link href={href} className="mt-3 flex-1 flex flex-col">
         <h3 className="text-sm font-semibold text-brown-800 line-clamp-2 group-hover:text-brown-900 leading-snug flex-1">
           {book.title}
         </h3>
         {book.author && (
-          <p className="text-xs text-brown-500 mt-1">{book.author}</p>
+          <p className="text-xs text-brown-500 mt-0.5">{book.author}</p>
         )}
-        <div className="flex items-center gap-3 mt-2 text-xs text-brown-400">
+        {book.category && (
+          <p className="text-[10px] text-orange-600 font-medium mt-1">{book.category.name}</p>
+        )}
+        <div className="flex items-center gap-2 mt-2 text-xs text-brown-400">
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {formatReadingTime(book.reading_time_minutes)}
           </span>
-          {book.rating > 0 && (
+          {book.rating > 0 && book.rating_count > 0 && (
             <span className="flex items-center gap-1">
               <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
               {book.rating.toFixed(1)}
             </span>
           )}
-          {book.is_free && <Badge variant="free" className="ml-auto">ฟรี</Badge>}
+          {book.view_count > 0 && (
+            <span className="flex items-center gap-1 ml-auto">
+              <Eye className="w-3 h-3" />
+              {formatNumber(book.view_count)}
+            </span>
+          )}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   )
 }

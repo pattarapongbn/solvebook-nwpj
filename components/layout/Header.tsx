@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Menu, BookOpen, User, X } from 'lucide-react'
+import { Search, Menu, BookOpen, User, X, Home, Grid2X2, BookMarked, LogOut, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { createClient } from '@/lib/supabase/client'
@@ -190,14 +190,14 @@ function MobileMenuButton() {
               </button>
             </div>
             <nav className="flex-1 overflow-y-auto p-5 space-y-1">
-              <DrawerItem onClick={() => nav('/')} icon="🏠" label="หน้าหลัก" />
-              <DrawerItem onClick={() => nav('/categories')} icon="📚" label="หมวดหมู่ทั้งหมด" />
-              <DrawerItem onClick={() => nav('/search')} icon="🔍" label="ค้นหา" />
+              <DrawerItem onClick={() => nav('/')} icon={Home} label="หน้าหลัก" />
+              <DrawerItem onClick={() => nav('/categories')} icon={Grid2X2} label="หมวดหมู่ทั้งหมด" />
+              <DrawerItem onClick={() => nav('/search')} icon={Search} label="ค้นหา" />
               {user && (
                 <>
                   <div className="border-t border-brown-100 my-3" />
-                  <DrawerItem onClick={() => nav('/library')} icon="📖" label="ชั้นหนังสือของฉัน" />
-                  <DrawerItem onClick={() => nav('/profile')} icon="👤" label="โปรไฟล์" />
+                  <DrawerItem onClick={() => nav('/library')} icon={BookMarked} label="ชั้นหนังสือของฉัน" />
+                  <DrawerItem onClick={() => nav('/profile')} icon={User} label="โปรไฟล์" />
                 </>
               )}
               <div className="border-t border-brown-100 my-3" />
@@ -206,12 +206,12 @@ function MobileMenuButton() {
                   onClick={async () => { await supabase.auth.signOut(); setOpen(false); router.refresh() }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
                 >
-                  <span>🚪</span>
+                  <LogOut className="w-4 h-4" />
                   <span>ออกจากระบบ</span>
                 </button>
               ) : (
                 <>
-                  <DrawerItem onClick={() => nav('/login')} icon="🔑" label="เข้าสู่ระบบ" />
+                  <DrawerItem onClick={() => nav('/login')} icon={LogIn} label="เข้าสู่ระบบ" />
                   <button
                     onClick={() => nav('/register')}
                     className="w-full mt-2 bg-orange-500 text-white py-3 rounded-2xl text-sm font-medium hover:bg-orange-600 transition-colors"
@@ -228,13 +228,13 @@ function MobileMenuButton() {
   )
 }
 
-function DrawerItem({ onClick, icon, label }: { onClick: () => void; icon: string; label: string }) {
+function DrawerItem({ onClick, icon: Icon, label }: { onClick: () => void; icon: React.ElementType; label: string }) {
   return (
     <button
       onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm text-brown-700 hover:bg-ivory hover:text-brown-900 transition-colors text-left"
     >
-      <span className="text-base">{icon}</span>
+      <Icon className="w-4 h-4 text-brown-400" />
       <span>{label}</span>
     </button>
   )
