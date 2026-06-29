@@ -12,8 +12,7 @@ export function SignOutButton() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     toast.success('ออกจากระบบแล้ว')
-    router.push('/')
-    router.refresh()
+    router.push('/login')
   }
 
   return (
