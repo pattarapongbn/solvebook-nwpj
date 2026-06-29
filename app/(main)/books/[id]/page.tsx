@@ -7,6 +7,7 @@ import { BookCard } from '@/components/books/BookCard'
 import { HorizontalScroll } from '@/components/books/HorizontalScroll'
 import { FavoriteButton } from '@/components/books/FavoriteButton'
 import { ShareButton } from '@/components/books/ShareButton'
+import { CommentSection } from '@/components/books/CommentSection'
 import { UnlockButton } from '@/components/wallet/UnlockButton'
 import { Badge } from '@/components/ui/badge'
 import { getCategoryIcon } from '@/lib/category-icons'
@@ -56,7 +57,7 @@ export default async function BookPage({ params }: Props) {
   const { book, chapters } = data
   const supabase = await createClient()
 
-  const [relatedRes, userRes] = await Promise.all([
+  const [relatedRes, userRes, commentsRes] = await Promise.all([
     supabase.from('books')
       .select('*, category:categories(id,name,slug,color,icon)')
       .eq('is_published', true)
@@ -64,6 +65,10 @@ export default async function BookPage({ params }: Props) {
       .neq('id', book.id)
       .limit(6),
     supabase.auth.getUser(),
+    supabase.from('comments')
+      .select('id, user_id, parent_id, content, like_count, created_at, profiles(full_name, avatar_url)')
+      .eq('book_id', id)
+      .order('created_at', { ascending: false }),
   ])
 
   const user = userRes.data.user
@@ -98,6 +103,24 @@ export default async function BookPage({ params }: Props) {
   const isUnlocked = !!unlockRes2.data
   const walletBalance: number | null = walletRes2.data ? (walletRes2.data as { balance: number }).balance : null
   const isFavorited = !!favRes2.data
+
+  // Build comment tree
+  type RawComment = { id: string; user_id: string; parent_id: string | null; content: string; like_count: number; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }
+  const allComments = (commentsRes.data ?? []) as unknown as RawComment[]
+  const roots = allComments.filter(c => !c.parent_id)
+  const replies = allComments.filter(c => !!c.parent_id)
+  const commentsTree = roots.map(r => ({ ...r, replies: replies.filter(rep => rep.parent_id === r.id) }))
+
+  // Which comment IDs the current user has liked
+  let likedCommentIds: string[] = []
+  if (user && allComments.length > 0) {
+    const { data: likes } = await supabase
+      .from('comment_likes')
+      .select('comment_id')
+      .eq('user_id', user.id)
+      .in('comment_id', allComments.map(c => c.id))
+    likedCommentIds = (likes ?? []).map((l: { comment_id: string }) => l.comment_id)
+  }
 
   const canRead = book.is_free || isUnlocked
   const totalTime = chapters.reduce((s, c) => s + (c.reading_time_minutes ?? 0), 0) || book.reading_time_minutes
@@ -224,6 +247,14 @@ export default async function BookPage({ params }: Props) {
             <HorizontalScroll books={related} />
           </div>
         )}
+
+        {/* Comments */}
+        <CommentSection
+          bookId={book.id}
+          initialComments={commentsTree as Parameters<typeof CommentSection>[0]['initialComments']}
+          userId={user?.id ?? null}
+          initialLikedIds={likedCommentIds}
+        />
       </div>
 
       {/* Mobile sticky CTA */}
