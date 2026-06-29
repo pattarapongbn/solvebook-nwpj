@@ -64,39 +64,31 @@ export default async function BookPage({ params }: Props) {
     supabase.auth.getUser(),
   ])
 
-  let readingProgress: { chapter_id: string | null; progress_percent: number } | null = null
-  let isUnlocked = false
-  let walletBalance: number | null = null
   const user = userRes.data.user
-  if (user) {
-    const queries: Promise<unknown>[] = [
-      supabase
-        .from('reading_progress')
-        .select('chapter_id, progress_percent')
-        .eq('user_id', user.id)
-        .eq('book_id', id)
-        .single()
-        .then(r => { readingProgress = r.data }),
-    ]
-    if (!book.is_free) {
-      queries.push(
-        supabase
-          .from('unlocks')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('book_id', id)
-          .maybeSingle()
-          .then(r => { isUnlocked = !!r.data }),
-        supabase
-          .from('wallets')
-          .select('balance')
-          .eq('user_id', user.id)
-          .maybeSingle()
-          .then(r => { walletBalance = r.data?.balance ?? 0 }),
-      )
-    }
-    await Promise.all(queries)
-  }
+
+  const [progressRes2, unlockRes2, walletRes2] = user ? await Promise.all([
+    supabase
+      .from('reading_progress')
+      .select('chapter_id, progress_percent')
+      .eq('user_id', user.id)
+      .eq('book_id', id)
+      .maybeSingle(),
+    book.is_free ? Promise.resolve({ data: null as { id: string } | null }) : supabase
+      .from('unlocks')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('book_id', id)
+      .maybeSingle(),
+    book.is_free ? Promise.resolve({ data: null as { balance: number } | null }) : supabase
+      .from('wallets')
+      .select('balance')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+  ]) : [{ data: null }, { data: null }, { data: null }]
+
+  const readingProgress = progressRes2.data as { chapter_id: string | null; progress_percent: number } | null
+  const isUnlocked = !!unlockRes2.data
+  const walletBalance: number | null = walletRes2.data ? (walletRes2.data as { balance: number }).balance : null
 
   const canRead = book.is_free || isUnlocked
   const totalTime = chapters.reduce((s, c) => s + (c.reading_time_minutes ?? 0), 0) || book.reading_time_minutes
