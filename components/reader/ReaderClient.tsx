@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
+import { ChartBlock } from '@/components/reader/ChartBlock'
 import type { BookChapter } from '@/lib/types'
 
 interface ReaderBook {
@@ -204,11 +205,7 @@ export function ReaderClient({ book, chapters, currentChapter }: Props) {
         </header>
 
         {/* Body */}
-        <div
-          className="prose prose-reader max-w-none"
-          style={{ color: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
-          dangerouslySetInnerHTML={{ __html: formatContent(currentChapter.content ?? '') }}
-        />
+        <ContentRenderer content={currentChapter.content ?? ''} theme={theme} />
       </article>
 
       {/* Bottom navigation */}
@@ -422,14 +419,69 @@ function TocPanel({
   )
 }
 
-function formatContent(raw: string): string {
-  if (!raw) return ''
-  // Convert plain text paragraphs to HTML
-  if (!raw.startsWith('<')) {
-    return raw
-      .split(/\n\n+/)
-      .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
-      .join('')
+// Split content into html segments and chart segments
+type Segment = { type: 'html'; html: string } | { type: 'chart'; json: string }
+
+function parseSegments(raw: string): Segment[] {
+  if (!raw) return []
+
+  // Detect chart blocks in markdown fence form: ```chart\n...\n```
+  // or HTML form: <pre><code class="language-chart">...</code></pre>
+  const FENCE_RE = /```chart\r?\n([\s\S]*?)```/g
+  const HTML_RE  = /<pre[^>]*><code[^>]*class="[^"]*language-chart[^"]*"[^>]*>([\s\S]*?)<\/code><\/pre>/gi
+
+  const segments: Segment[] = []
+  const combined = /```chart\r?\n[\s\S]*?```|<pre[^>]*><code[^>]*class="[^"]*language-chart[^"]*"[^>]*>[\s\S]*?<\/code><\/pre>/gi
+
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = combined.exec(raw)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ type: 'html', html: toHtml(raw.slice(lastIndex, match.index)) })
+    }
+    // Extract JSON from whichever format matched
+    const fenceMatch = FENCE_RE.exec(match[0])
+    FENCE_RE.lastIndex = 0
+    const htmlMatch  = HTML_RE.exec(match[0])
+    HTML_RE.lastIndex = 0
+    const json = fenceMatch ? fenceMatch[1].trim()
+      : htmlMatch ? htmlMatch[1].replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim()
+      : ''
+    segments.push({ type: 'chart', json })
+    lastIndex = match.index + match[0].length
   }
+  if (lastIndex < raw.length) {
+    segments.push({ type: 'html', html: toHtml(raw.slice(lastIndex)) })
+  }
+  return segments.length ? segments : [{ type: 'html', html: toHtml(raw) }]
+}
+
+function toHtml(raw: string): string {
+  if (!raw.trim()) return ''
+  if (raw.trimStart().startsWith('<')) return raw
   return raw
+    .split(/\n\n+/)
+    .map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '')
+    .join('')
+}
+
+function ContentRenderer({ content, theme }: { content: string; theme: Theme }) {
+  const segments = useMemo(() => parseSegments(content), [content])
+  return (
+    <>
+      {segments.map((seg, i) =>
+        seg.type === 'chart' ? (
+          <ChartBlock key={i} json={seg.json} theme={theme} />
+        ) : (
+          <div
+            key={i}
+            className="prose prose-reader max-w-none"
+            style={{ color: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
+            dangerouslySetInnerHTML={{ __html: seg.html }}
+          />
+        )
+      )}
+    </>
+  )
 }
