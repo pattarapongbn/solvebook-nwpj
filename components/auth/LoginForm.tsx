@@ -20,7 +20,11 @@ export function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (error) {
-      toast.error('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+      const msg =
+        error.code === 'email_not_confirmed' ? 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ' :
+        error.code === 'invalid_credentials'  ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' :
+        error.message
+      toast.error(msg)
       return
     }
     router.push('/')
