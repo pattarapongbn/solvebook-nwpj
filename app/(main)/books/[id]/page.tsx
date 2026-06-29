@@ -98,7 +98,7 @@ export default async function BookPage({ params }: Props) {
   const CategoryIcon = book.category ? getCategoryIcon(book.category.slug) : null
 
   return (
-    <div className="page-fade pb-24 md:pb-0">
+    <div className="page-fade pb-48 md:pb-0">
       {/* Top bar */}
       <div className="section-wrap py-4 flex items-center justify-between">
         <Link
@@ -223,7 +223,7 @@ export default async function BookPage({ params }: Props) {
 
       {/* Mobile sticky CTA */}
       {chapters.length > 0 && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 p-4 bg-white/95 backdrop-blur-sm border-t border-brown-100">
+        <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 p-4 bg-white/95 backdrop-blur-sm border-t border-brown-100">
           {canRead && startChapterId ? (
             <Link
               href={`/read/${book.id}/${startChapterId}`}
