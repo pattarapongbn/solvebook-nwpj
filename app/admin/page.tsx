@@ -7,11 +7,16 @@ export const metadata: Metadata = { title: 'Admin — ภาพรวม' }
 export default async function AdminPage() {
   const supabase = await createClient()
 
-  const [booksRes, usersRes, viewsRes, chaptersRes] = await Promise.all([
+  const [booksRes, usersRes, viewsRes, chaptersRes, recentBooksRes] = await Promise.all([
     supabase.from('books').select('id', { count: 'exact' }).eq('is_published', true),
     supabase.from('profiles').select('id', { count: 'exact' }),
     supabase.from('books').select('view_count'),
     supabase.from('book_chapters').select('id', { count: 'exact' }),
+    supabase
+      .from('books')
+      .select('id, title, view_count, is_published, created_at, category:categories(name)')
+      .order('created_at', { ascending: false })
+      .limit(10),
   ])
 
   const totalViews = (viewsRes.data ?? []).reduce((s, b) => s + (b.view_count ?? 0), 0)
@@ -22,11 +27,7 @@ export default async function AdminPage() {
     { label: 'บทความทั้งหมด', value: chaptersRes.count ?? 0, icon: Clock, color: 'text-purple-500' },
   ]
 
-  const { data: recentBooks } = await supabase
-    .from('books')
-    .select('id, title, view_count, is_published, created_at, category:categories(name)')
-    .order('created_at', { ascending: false })
-    .limit(10)
+  const recentBooks = recentBooksRes.data
 
   return (
     <div className="p-8">
