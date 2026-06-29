@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { User, BookOpen, Settings, LogOut, ArrowLeft, ChevronRight, Pencil, Wallet, LayoutDashboard } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from '@/components/auth/SignOutButton'
+import { CreatorApplicationButton } from '@/components/profile/CreatorApplicationButton'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'โปรไฟล์' }
@@ -57,6 +58,7 @@ export default async function ProfilePage() {
         <MenuItem href="/profile/edit" icon={Pencil} label="แก้ไขโปรไฟล์" />
         <MenuItem href="/wallet" icon={Wallet} label="กระเป๋าคอยน์" />
         <MenuItem href="/settings" icon={Settings} label="ตั้งค่าการอ่าน" />
+        <CreatorApplicationButton userId={user.id} />
         {profile?.is_admin && (
           <MenuItem href="/admin" icon={LayoutDashboard} label="Admin Panel" />
         )}
