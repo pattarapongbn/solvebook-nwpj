@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Clock, Star, BookOpen, Heart, Share2, ArrowLeft } from 'lucide-react'
+import { Clock, Star, BookOpen, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { BookCover } from '@/components/books/BookCover'
 import { BookCard } from '@/components/books/BookCard'
 import { HorizontalScroll } from '@/components/books/HorizontalScroll'
+import { FavoriteButton } from '@/components/books/FavoriteButton'
+import { ShareButton } from '@/components/books/ShareButton'
 import { UnlockButton } from '@/components/wallet/UnlockButton'
 import { Badge } from '@/components/ui/badge'
 import { getCategoryIcon } from '@/lib/category-icons'
@@ -66,7 +68,7 @@ export default async function BookPage({ params }: Props) {
 
   const user = userRes.data.user
 
-  const [progressRes2, unlockRes2, walletRes2] = user ? await Promise.all([
+  const [progressRes2, unlockRes2, walletRes2, favRes2] = user ? await Promise.all([
     supabase
       .from('reading_progress')
       .select('chapter_id, progress_percent')
@@ -84,11 +86,18 @@ export default async function BookPage({ params }: Props) {
       .select('balance')
       .eq('user_id', user.id)
       .maybeSingle(),
-  ]) : [{ data: null }, { data: null }, { data: null }]
+    supabase
+      .from('favorites')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('book_id', id)
+      .maybeSingle(),
+  ]) : [{ data: null }, { data: null }, { data: null }, { data: null }]
 
   const readingProgress = progressRes2.data as { chapter_id: string | null; progress_percent: number } | null
   const isUnlocked = !!unlockRes2.data
   const walletBalance: number | null = walletRes2.data ? (walletRes2.data as { balance: number }).balance : null
+  const isFavorited = !!favRes2.data
 
   const canRead = book.is_free || isUnlocked
   const totalTime = chapters.reduce((s, c) => s + (c.reading_time_minutes ?? 0), 0) || book.reading_time_minutes
@@ -109,12 +118,8 @@ export default async function BookPage({ params }: Props) {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex items-center gap-1">
-          <button className="p-2 text-brown-400 hover:text-orange-500 transition-colors" aria-label="บันทึก">
-            <Heart className="w-5 h-5" />
-          </button>
-          <button className="p-2 text-brown-400 hover:text-brown-700 transition-colors" aria-label="แชร์">
-            <Share2 className="w-5 h-5" />
-          </button>
+          <FavoriteButton bookId={book.id} userId={user?.id ?? null} initialFavorited={isFavorited} />
+          <ShareButton bookId={book.id} title={book.title} />
         </div>
       </div>
 
