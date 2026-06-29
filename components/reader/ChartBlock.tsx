@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
@@ -17,7 +18,7 @@ const COLORS = [
   '#EA580C', '#C2410C', '#9A3412', '#7C2D12',
 ]
 
-export function ChartBlock({ json, theme }: { json: string; theme: 'light' | 'sepia' | 'dark' }) {
+function ChartBlockBase({ json, theme }: { json: string; theme: 'light' | 'sepia' | 'dark' }) {
   let chart: ChartData
   try {
     chart = JSON.parse(json) as ChartData
@@ -94,3 +95,5 @@ export function ChartBlock({ json, theme }: { json: string; theme: 'light' | 'se
     </div>
   )
 }
+
+export const ChartBlock = React.memo(ChartBlockBase)

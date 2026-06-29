@@ -68,7 +68,8 @@ export function ReaderClient({ book, chapters, currentChapter }: Props) {
   const [showToc, setShowToc] = useState(false)
   const [toolbarVisible, setToolbarVisible] = useState(true)
   const [scrollPct, setScrollPct] = useState(0)
-  const [lastY, setLastY] = useState(0)
+  const lastYRef = React.useRef(0)
+  const tickingRef = React.useRef(false)
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -90,19 +91,31 @@ export function ReaderClient({ book, chapters, currentChapter }: Props) {
   const nextChapter = chapters[currentIndex + 1]
   const t = THEME_STYLES[theme]
 
-  // Hide/show toolbar on scroll
+  // Hide/show toolbar on scroll — rAF-throttled, ref-based to avoid re-renders
   useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY
-      const doc = document.documentElement
-      const pct = Math.round((y / (doc.scrollHeight - doc.clientHeight)) * 100)
-      setScrollPct(Math.min(100, pct || 0))
-      setToolbarVisible(y < lastY || y < 80)
-      setLastY(y)
+      if (tickingRef.current) return
+      tickingRef.current = true
+      requestAnimationFrame(() => {
+        const y = window.scrollY
+        const doc = document.documentElement
+        const pct = Math.round((y / (doc.scrollHeight - doc.clientHeight)) * 100)
+        setScrollPct(Math.min(100, Math.max(0, pct || 0)))
+        setToolbarVisible(y < lastYRef.current || y < 80)
+        lastYRef.current = y
+        tickingRef.current = false
+      })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [lastY])
+  }, [])
+
+  // Scroll to top on chapter change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    lastYRef.current = 0
+    setToolbarVisible(true)
+  }, [currentChapter.id])
 
   // Keyboard navigation
   useEffect(() => {
