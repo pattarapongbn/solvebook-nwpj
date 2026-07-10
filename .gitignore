@@ -1,10 +1,24 @@
-.vercel
-.DS_Store
-node_modules
-*.log
-.next
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# builds
+.next/
+out/
+dist/
+
+# env
+.env
 .env.local
 .env*.local
-out/
-claude-code-generate-images-mcp/
-tsconfig.tsbuildinfo
+
+# databases
+*.db
+*.sqlite3
+
+# misc
+.DS_Store
+*.log
+.playwright/
