@@ -53,6 +53,7 @@ export interface ProductListItem {
   category: string | null;
   price: number | null;
   currency: string | null;
+  price_thb: number | null;
   orders: number | null;
   thailand_status: ThailandStatus | null;
   is_favorite: boolean;
@@ -70,10 +71,12 @@ export interface SnapshotPoint {
   snapshot_date: string;
   price: number;
   currency: string;
+  price_thb: number | null;
   orders_1d: number | null;
   orders_7d: number | null;
   orders_30d: number | null;
   revenue_30d: number | null;
+  revenue_30d_thb: number | null;
   rating: number | null;
   review_count: number | null;
 }

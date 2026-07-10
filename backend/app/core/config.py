@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     cors_origins: str = "http://localhost:3000"
 
+    # อัตราแลกเปลี่ยนเป็นบาท — fix ไว้ก่อนใน MVP, override ได้ผ่าน env
+    usd_thb_rate: float = 36.50
+    cny_thb_rate: float = 5.10
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

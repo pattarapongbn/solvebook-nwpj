@@ -33,6 +33,7 @@ class ProductListItem(BaseModel):
     category: str | None
     price: float | None
     currency: str | None
+    price_thb: float | None
     orders: int | None
     thailand_status: ThailandStatus | None
     is_favorite: bool
@@ -50,10 +51,12 @@ class SnapshotPoint(BaseModel):
     snapshot_date: date
     price: float
     currency: str
+    price_thb: float | None
     orders_1d: int | None
     orders_7d: int | None
     orders_30d: int | None
     revenue_30d: float | None
+    revenue_30d_thb: float | None
     rating: float | None
     review_count: int | None
 

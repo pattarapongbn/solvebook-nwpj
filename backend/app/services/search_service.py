@@ -10,6 +10,7 @@ from app.schemas.search import (
     SnapshotPoint,
     ThailandCheckPoint,
 )
+from app.services.currency import to_thb
 
 
 class SearchService:
@@ -48,10 +49,12 @@ class SearchService:
                     snapshot_date=s.snapshot_date,
                     price=s.price,
                     currency=s.currency,
+                    price_thb=to_thb(s.price, s.currency),
                     orders_1d=s.orders_1d,
                     orders_7d=s.orders_7d,
                     orders_30d=s.orders_30d,
                     revenue_30d=s.revenue_30d,
+                    revenue_30d_thb=to_thb(s.revenue_30d, s.currency),
                     rating=s.rating,
                     review_count=s.review_count,
                 )
@@ -96,6 +99,7 @@ class SearchService:
             category=product.category,
             price=snapshot.price if snapshot else None,
             currency=snapshot.currency if snapshot else None,
+            price_thb=to_thb(snapshot.price, snapshot.currency) if snapshot else None,
             orders=orders,
             thailand_status=check.status if check else None,
             is_favorite=favorite_id is not None,

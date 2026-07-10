@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { getProductDetail } from "@/features/search/api";
 import { MARKETPLACE_LABELS, type ProductDetail } from "@/features/search/types";
-import { cn, formatNumber, formatPrice } from "@/lib/utils";
+import { cn, formatNumber, formatPrice, formatTHB } from "@/lib/utils";
 
 const TABS = ["Overview", "Price History", "Sales History", "Shopee Thailand"] as const;
 type Tab = (typeof TABS)[number];
@@ -108,6 +108,9 @@ function OverviewTab({ product }: { product: ProductDetail }) {
         <p className="mt-1 text-lg font-bold tabular-nums">
           {formatPrice(latest?.price ?? null, latest?.currency ?? null)}
         </p>
+        <p className="text-sm text-gray-500 tabular-nums">
+          {formatTHB(latest?.price_thb ?? null)}
+        </p>
       </Card>
       <Card>
         <p className="text-xs text-gray-500">Orders (30d)</p>
@@ -119,6 +122,9 @@ function OverviewTab({ product }: { product: ProductDetail }) {
         <p className="text-xs text-gray-500">Revenue (30d)</p>
         <p className="mt-1 text-lg font-bold tabular-nums">
           {formatPrice(latest?.revenue_30d ?? null, latest?.currency ?? null)}
+        </p>
+        <p className="text-sm text-gray-500 tabular-nums">
+          {formatTHB(latest?.revenue_30d_thb ?? null)}
         </p>
       </Card>
       <Card>
@@ -146,6 +152,7 @@ function PriceHistoryTab({ product }: { product: ProductDetail }) {
         <TableRow className="hover:bg-transparent">
           <TableHead>Date</TableHead>
           <TableHead>Price</TableHead>
+          <TableHead>Price (THB)</TableHead>
           <TableHead>Rating</TableHead>
           <TableHead>Reviews</TableHead>
         </TableRow>
@@ -155,6 +162,7 @@ function PriceHistoryTab({ product }: { product: ProductDetail }) {
           <TableRow key={s.snapshot_date}>
             <TableCell>{s.snapshot_date}</TableCell>
             <TableCell className="tabular-nums">{formatPrice(s.price, s.currency)}</TableCell>
+            <TableCell className="tabular-nums">{formatTHB(s.price_thb)}</TableCell>
             <TableCell className="tabular-nums">{s.rating ?? "—"}</TableCell>
             <TableCell className="tabular-nums">{formatNumber(s.review_count)}</TableCell>
           </TableRow>
@@ -174,6 +182,7 @@ function SalesHistoryTab({ product }: { product: ProductDetail }) {
           <TableHead>Orders 7d</TableHead>
           <TableHead>Orders 30d</TableHead>
           <TableHead>Revenue 30d</TableHead>
+          <TableHead>Revenue 30d (THB)</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -186,6 +195,7 @@ function SalesHistoryTab({ product }: { product: ProductDetail }) {
             <TableCell className="tabular-nums">
               {formatPrice(s.revenue_30d, s.currency)}
             </TableCell>
+            <TableCell className="tabular-nums">{formatTHB(s.revenue_30d_thb)}</TableCell>
           </TableRow>
         ))}
       </TableBody>

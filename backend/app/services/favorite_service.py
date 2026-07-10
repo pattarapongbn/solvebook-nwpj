@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.repositories.favorite_repository import FavoriteRepository
 from app.repositories.product_repository import ProductRepository
 from app.schemas.search import FavoriteItem, ProductListItem
+from app.services.currency import to_thb
 
 
 class FavoriteNotFound(Exception):
@@ -47,6 +48,11 @@ class FavoriteService:
                         category=product.category,
                         price=latest_snap.price if latest_snap else None,
                         currency=latest_snap.currency if latest_snap else None,
+                        price_thb=(
+                            to_thb(latest_snap.price, latest_snap.currency)
+                            if latest_snap
+                            else None
+                        ),
                         orders=latest_snap.orders_7d if latest_snap else None,
                         thailand_status=latest_check.status if latest_check else None,
                         is_favorite=True,

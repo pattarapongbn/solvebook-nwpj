@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn, formatNumber, formatPrice } from "@/lib/utils";
+import { cn, formatNumber, formatPrice, formatTHB } from "@/lib/utils";
 
 import { addFavorite, removeFavorite } from "./api";
 import { MARKETPLACE_LABELS, type ProductListItem } from "./types";
@@ -101,11 +101,17 @@ export function ResultsTable({ items }: ResultsTableProps) {
       }),
       columnHelper.accessor("price", {
         header: "Price",
-        cell: (info) => (
-          <span className="tabular-nums">
-            {formatPrice(info.getValue(), info.row.original.currency)}
-          </span>
-        ),
+        cell: (info) => {
+          const item = info.row.original;
+          return (
+            <div className="tabular-nums">
+              <div>{formatPrice(item.price, item.currency)}</div>
+              {item.price_thb !== null && (
+                <div className="text-xs text-gray-500">{formatTHB(item.price_thb)}</div>
+              )}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor("orders", {
         header: "Sales",
