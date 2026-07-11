@@ -21,4 +21,6 @@ Internal research tool (single user) สำหรับหาสินค้า�
 - Frontend: `cd frontend && npm run dev` / `npm run build` / `npm run lint`
 - Backend: `cd backend && uvicorn app.main:app --reload` / tests: `pytest`
 - Init DB + seed: `cd backend && python -m app.db.init_db --seed`
+- Crawler: `cd backend && python -m app.crawlers.run --keywords-file ../crawl/keywords.txt`
+- Daily job: GitHub Actions `.github/workflows/daily-crawl.yml` (secret `DATABASE_URL`)
 - Dev DB แบบไม่มี Postgres: `DATABASE_URL=sqlite:///./scout.db`

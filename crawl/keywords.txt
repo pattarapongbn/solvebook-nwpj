@@ -1,0 +1,10 @@
+# Scout daily crawl keywords — บรรทัดละรายการ, รูปแบบ: keyword | Category
+# แก้ไฟล์นี้เพื่อเปลี่ยนสินค้าที่ติดตาม แล้ว push — job รายวันจะใช้ชุดล่าสุดอัตโนมัติ
+portable blender | Kitchen
+pet hair remover | Pet
+camping lantern | Sports
+car seat organizer | Automotive
+baby feeding set | Baby
+desk organizer | Office
+facial ice roller | Beauty
+shower drain hair catcher | Home

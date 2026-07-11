@@ -64,10 +64,24 @@ npm run dev
 - API ห้าม query database โดยตรง (ผ่าน repository เท่านั้น)
 - ข้อมูลราคา/ยอดขายเป็น **daily snapshot** — append only, ไม่ update history
 
+## Crawler (ข้อมูลจริง)
+
+```bash
+cd backend
+playwright install chromium   # ครั้งแรกครั้งเดียว
+python -m app.crawlers.run --keywords-file ../crawl/keywords.txt --sources amazon,1688
+```
+
+- Keyword ที่ติดตามอยู่ใน `crawl/keywords.txt` (บรรทัดละรายการ, `keyword | Category`)
+- ยอดขาย Amazon ประมาณจากป้าย "N+ bought in past month"
+- **อัปเดตอัตโนมัติทุกวัน 06:00 น.** ผ่าน GitHub Actions (`.github/workflows/daily-crawl.yml`)
+  — ต้องตั้ง repo secret `DATABASE_URL` ชี้ไป Postgres/Supabase
+- Snapshot เป็น append-only: วันละแถวต่อสินค้า รันซ้ำวันเดิมไม่เขียนทับ
+
 ## Development Priority
 
 - [x] Sprint 1 — Project setup, Database schema, Search UI
-- [ ] Sprint 2 — Amazon crawler, 1688 crawler
+- [x] Sprint 2 — Amazon crawler, 1688 crawler + daily snapshot job
 - [ ] Sprint 3 — Shopee Thailand checker
 - [ ] Sprint 4 — Favorite, Snapshot, History
 - [ ] Sprint 5 — Supplier finder
