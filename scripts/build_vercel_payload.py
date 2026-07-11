@@ -1,19 +1,20 @@
-"""ประกอบไฟล์ทั้งหมดเป็น payload เดียวสำหรับ deploy ขึ้น Vercel (Next.js + FastAPI)
+"""ประกอบไฟล์เป็นโฟลเดอร์เดียวสำหรับ deploy ขึ้น Vercel (Next.js + FastAPI)
 
-โครงสร้าง payload ที่ได้:
-    /                  ← Next.js app (จาก frontend/)
-    /api/index.py      ← entry ของ FastAPI (Python serverless function)
-    /api/_vendor/app/  ← backend package (ขึ้นต้น _ เพื่อไม่ให้ Vercel มองเป็น function)
-    /api/requirements.txt
+โครงสร้างที่ได้:
+    <out_dir>/                  ← Next.js app (จาก frontend/)
+    <out_dir>/api/index.py      ← entry ของ FastAPI (Python serverless function)
+    <out_dir>/api/_vendor/app/  ← backend package (ขึ้นต้น _ เพื่อไม่ให้ Vercel มองเป็น function)
+    <out_dir>/api/requirements.txt
 
-DATABASE_URL อ่านจาก env ตอนรัน script — ไม่ถูก commit ลง git
+DATABASE_URL ไม่ถูกฝังในไฟล์ — ตั้งเป็น env var ของ Vercel project แทน
+(vercel env add DATABASE_URL production)
 
 Usage:
-    DATABASE_URL=postgresql+psycopg2://... python scripts/build_vercel_payload.py > payload.json
+    python scripts/build_vercel_payload.py <out_dir>
+    จากนั้น: cd <out_dir> && vercel deploy --prod
 """
 
-import json
-import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -28,16 +29,14 @@ SKIP_FILES = {
     ".env.local",
     ".env.example",
     "scout.db",
-    # ตัด lockfile ให้ payload เล็ก — Vercel resolve จาก package.json ได้
-    "package-lock.json",
+    # ไม่ต้องใช้ตอน runtime บน serverless
+    "init_db.py",
 }
 
-API_INDEX_TEMPLATE = '''import os
+API_INDEX = '''import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_vendor"))
-
-os.environ.setdefault("DATABASE_URL", {database_url!r})
 
 from app.main import app  # noqa: E402
 '''
@@ -50,34 +49,37 @@ pydantic-settings>=2.6
 """
 
 
-def collect(base: Path, prefix: str) -> list[dict[str, str]]:
-    files = []
+def copy_tree(base: Path, dest: Path) -> None:
     for path in sorted(base.rglob("*")):
         if not path.is_file():
             continue
         rel = path.relative_to(base)
         if any(part in SKIP_DIRS for part in rel.parts) or rel.name in SKIP_FILES:
             continue
-        files.append(
-            {"file": f"{prefix}{rel.as_posix()}", "data": path.read_text(encoding="utf-8")}
-        )
-    return files
+        target = dest / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target)
 
 
 def main() -> None:
-    database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
-        print("DATABASE_URL env is required", file=sys.stderr)
+    if len(sys.argv) != 2:
+        print("usage: build_vercel_payload.py <out_dir>", file=sys.stderr)
         sys.exit(1)
+    out = Path(sys.argv[1]).resolve()
+    if out.exists():
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
 
-    files = collect(FRONTEND, "")
-    files += collect(BACKEND_APP, "api/_vendor/app/")
-    files.append({"file": "api/index.py", "data": API_INDEX_TEMPLATE.format(database_url=database_url)})
-    files.append({"file": "api/requirements.txt", "data": SERVERLESS_REQUIREMENTS})
+    copy_tree(FRONTEND, out)
+    copy_tree(BACKEND_APP, out / "api" / "_vendor" / "app")
+    (out / "api" / "index.py").write_text(API_INDEX, encoding="utf-8")
+    (out / "api" / "requirements.txt").write_text(SERVERLESS_REQUIREMENTS, encoding="utf-8")
     # ให้ frontend เรียก API แบบ same-origin บน Vercel
-    files.append({"file": ".env.production", "data": "NEXT_PUBLIC_API_URL=\n"})
+    (out / ".env.production").write_text("NEXT_PUBLIC_API_URL=\n", encoding="utf-8")
+    # กันไม่ให้ vercel CLI อัปโหลด/ติดตาม dev artifacts
+    (out / ".vercelignore").write_text("node_modules\n.next\n__pycache__\n", encoding="utf-8")
 
-    json.dump(files, sys.stdout)
+    print(f"payload ready at {out}")
 
 
 if __name__ == "__main__":
