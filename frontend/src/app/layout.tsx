@@ -18,7 +18,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <QueryProvider>
           <div className="flex min-h-screen">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto px-8 py-6">{children}</main>
+            {/* pb-24 เผื่อพื้นที่ bottom nav บนมือถือ */}
+            <main className="flex-1 overflow-y-auto px-4 py-4 pb-24 md:px-8 md:py-6 md:pb-6">
+              {children}
+            </main>
           </div>
         </QueryProvider>
       </body>

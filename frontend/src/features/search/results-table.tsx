@@ -59,6 +59,54 @@ function FavoriteButton({ item }: { item: ProductListItem }) {
   );
 }
 
+function ProductCard({ item }: { item: ProductListItem }) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+      <div className="flex items-start gap-3">
+        {item.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.image_url}
+            alt=""
+            className="h-12 w-12 shrink-0 rounded-lg border border-gray-200 object-cover"
+          />
+        ) : (
+          <div className="h-12 w-12 shrink-0 rounded-lg border border-gray-200 bg-gray-50" />
+        )}
+        <div className="min-w-0 flex-1">
+          <Link
+            href={`/products/${item.id}`}
+            className="line-clamp-2 text-sm font-medium leading-snug"
+          >
+            {item.name}
+          </Link>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {MARKETPLACE_LABELS[item.marketplace]} · {item.category ?? "—"}
+          </p>
+        </div>
+        <FavoriteButton item={item} />
+      </div>
+      <div className="mt-3 flex items-end justify-between gap-2">
+        <div className="tabular-nums">
+          <div className="text-sm font-semibold">
+            {formatPrice(item.price, item.currency)}
+          </div>
+          {item.price_thb !== null && (
+            <div className="text-xs text-gray-500">{formatTHB(item.price_thb)}</div>
+          )}
+        </div>
+        <div className="text-right">
+          <div className="text-sm font-semibold tabular-nums">
+            {formatNumber(item.orders)}
+          </div>
+          <div className="text-xs text-gray-500">sales</div>
+        </div>
+        <ThailandBadge status={item.thailand_status} />
+      </div>
+    </div>
+  );
+}
+
 interface ResultsTableProps {
   items: ProductListItem[];
 }
@@ -141,7 +189,17 @@ export function ResultsTable({ items }: ResultsTableProps) {
   });
 
   return (
-    <Table>
+    <>
+      {/* Mobile: การ์ดสินค้า */}
+      <div className="space-y-2 md:hidden">
+        {items.map((item) => (
+          <ProductCard key={item.id} item={item} />
+        ))}
+      </div>
+
+      {/* Desktop: ตาราง */}
+      <div className="hidden md:block">
+        <Table>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -153,17 +211,19 @@ export function ResultsTable({ items }: ResultsTableProps) {
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </TableCell>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
             ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }

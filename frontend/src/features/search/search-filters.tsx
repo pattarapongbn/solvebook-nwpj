@@ -43,9 +43,8 @@ export function SearchFilters({ onSearch }: SearchFiltersProps) {
       <div className="flex gap-3">
         <Input
           {...form.register("keyword")}
-          placeholder="ค้นหาสินค้า เช่น Portable Blender, Pet, Camping..."
+          placeholder="ค้นหาสินค้า เช่น Portable Blender, Pet..."
           className="flex-1"
-          autoFocus
         />
         <Button type="submit">
           <SearchIcon size={16} />
@@ -53,7 +52,7 @@ export function SearchFilters({ onSearch }: SearchFiltersProps) {
         </Button>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
+      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3 lg:grid-cols-7">
         <Select {...form.register("country")}>
           <option value="">Country: All</option>
           {COUNTRIES.map((c) => (
