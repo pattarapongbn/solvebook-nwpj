@@ -1,0 +1,100 @@
+/* =====================================================================
+   Instagram / Facebook story — 1080 x 1920 (9:16)
+   Single-column layout with larger type for full-screen viewing.
+   ===================================================================== */
+
+.poster {
+  width: 1080px;
+  height: 1920px;
+}
+
+/* ---------- Header ---------- */
+
+.poster-header {
+  padding: 44px 64px 36px;
+}
+
+.header-inner {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 26px;
+}
+
+.brand { justify-content: center; }
+.brand-logo { width: 88px; height: 88px; }
+.brand-name { font-size: 34px; }
+.brand-tag { font-size: 16px; }
+
+.headline { text-align: center; }
+.headline-title { font-size: 62px; }
+.headline-subtitle { font-size: 24px; margin-top: 10px; }
+
+.date-card {
+  padding: 18px 32px;
+}
+
+.date-card-label { font-size: 16px; }
+.date-card-value { font-size: 36px; margin-top: 6px; }
+.date-card-updated { font-size: 20px; padding: 8px 20px; margin-top: 14px; }
+
+/* ---------- Body: stories stack cards in one column ---------- */
+
+.poster-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 44px 64px;
+  min-height: 0;
+}
+
+.market-grid {
+  grid-template-columns: 1fr;
+  gap: 26px;
+}
+
+.commodity-card {
+  flex-direction: row;
+  align-items: center;
+  padding: 22px 32px;
+  min-height: 116px;
+  gap: 24px;
+}
+
+.card-top { flex: 1; align-items: center; min-width: 0; }
+.card-bottom { flex: none; flex-direction: column; align-items: flex-end; gap: 12px; }
+
+.card-icon { width: 76px; height: 76px; }
+.card-name { font-size: 36px; }
+.card-location { font-size: 22px; margin-top: 6px; }
+.card-price { font-size: 48px; }
+.card-unit { font-size: 20px; margin-top: 6px; text-align: right; }
+.change-badge { font-size: 24px; padding: 8px 18px; }
+.change-badge .arrow { font-size: 22px; }
+
+.extremes { margin-top: 4px; }
+.extreme { padding: 16px 20px; }
+.extreme-label { font-size: 20px; }
+.extreme-name { font-size: 24px; }
+.extreme-value { font-size: 26px; }
+
+/* ---------- Footer ---------- */
+
+.poster-footer {
+  padding: 32px 64px 40px;
+}
+
+.footer-inner {
+  flex-direction: column;
+  gap: 28px;
+}
+
+.summary-stats { width: 100%; justify-content: center; }
+.stat-pill { flex: 1; padding: 18px 20px; }
+.stat-pill-value { font-size: 42px; }
+.stat-pill-label { font-size: 17px; margin-top: 6px; }
+
+.footer-meta { text-align: center; }
+.footer-sources { font-size: 18px; }
+.footer-brand { justify-content: center; font-size: 24px; margin-top: 10px; }
+.footer-brand img { width: 40px; height: 40px; }

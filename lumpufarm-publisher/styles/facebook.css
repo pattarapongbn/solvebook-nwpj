@@ -1,0 +1,83 @@
+/* =====================================================================
+   Facebook feed poster — 1080 x 1350 (4:5)
+   Sizing/spacing only; visual identity comes from base.css.
+   ===================================================================== */
+
+.poster {
+  width: 1080px;
+  height: 1350px;
+}
+
+/* ---------- Header ---------- */
+
+.poster-header {
+  padding: 44px 56px 36px;
+}
+
+.brand-logo { width: 74px; height: 74px; }
+.brand-name { font-size: 30px; }
+.brand-tag { font-size: 15px; }
+
+.headline {
+  margin-top: 26px;
+}
+
+.headline-title { font-size: 62px; }
+.headline-subtitle { font-size: 21px; margin-top: 8px; }
+
+.date-card {
+  padding: 20px 30px;
+}
+
+.date-card-label { font-size: 14px; }
+.date-card-value { font-size: 30px; margin-top: 6px; }
+.date-card-updated { font-size: 17px; padding: 6px 16px; margin-top: 12px; }
+
+/* ---------- Body ---------- */
+
+.poster-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 36px 56px;
+  min-height: 0;
+}
+
+.market-grid {
+  gap: 24px;
+}
+
+.commodity-card {
+  padding: 26px 28px;
+  min-height: 168px;
+  gap: 18px;
+}
+
+.card-icon { width: 64px; height: 64px; }
+.card-name { font-size: 30px; }
+.card-location { font-size: 19px; margin-top: 4px; }
+.card-price { font-size: 44px; }
+.card-unit { font-size: 18px; margin-top: 6px; }
+.change-badge { font-size: 22px; padding: 8px 16px; }
+.change-badge .arrow { font-size: 20px; }
+
+.extremes { margin-top: 2px; }
+.extreme { padding: 16px 20px; }
+.extreme-label { font-size: 17px; }
+.extreme-name { font-size: 20px; }
+.extreme-value { font-size: 22px; }
+
+/* ---------- Footer ---------- */
+
+.poster-footer {
+  padding: 30px 56px 34px;
+}
+
+.stat-pill { min-width: 128px; padding: 14px 18px; }
+.stat-pill-value { font-size: 34px; }
+.stat-pill-label { font-size: 15px; margin-top: 4px; }
+
+.footer-sources { font-size: 16px; }
+.footer-brand { font-size: 20px; margin-top: 8px; }
+.footer-brand img { width: 34px; height: 34px; }

@@ -1,0 +1,404 @@
+/* =====================================================================
+   LumpuFarm Publisher — base design system
+   Shared tokens, fonts, and reusable components for every template.
+   ===================================================================== */
+
+/* ---------- Fonts -------------------------------------------------- */
+
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('../assets/fonts/NotoSansThai-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('../assets/fonts/NotoSansThai-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: block;
+}
+
+/* ---------- Design tokens ------------------------------------------ */
+
+:root {
+  /* Brand greens */
+  --green-900: #0b3d26;
+  --green-800: #10512f;
+  --green-700: #156a3d;
+  --green-600: #1c7a48;
+  --green-500: #2e9960;
+  --green-100: #dcf0e4;
+  --green-50: #f0f8f3;
+
+  /* Market direction colors */
+  --up: #1c7a48;
+  --up-bg: #e3f4ea;
+  --down: #c0392b;
+  --down-bg: #fbe9e6;
+  --flat: #6b7280;
+  --flat-bg: #eef0f2;
+
+  /* Neutrals */
+  --ink: #14231b;
+  --ink-soft: #4b5d52;
+  --line: #dbe5de;
+  --paper: #ffffff;
+  --gold: #e0a63a;
+
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --radius-sm: 12px;
+
+  --shadow-card: 0 6px 24px rgba(11, 61, 38, 0.08);
+
+  --font-thai: 'Noto Sans Thai', 'Sarabun', 'Tahoma', sans-serif;
+}
+
+/* ---------- Reset --------------------------------------------------- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: var(--font-thai);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+}
+
+/* ---------- Poster shell -------------------------------------------- */
+
+.poster {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background:
+    url('../assets/background.png') center / cover no-repeat,
+    linear-gradient(180deg, var(--green-50) 0%, #e9f2ec 100%);
+}
+
+/* ---------- Header component ----------------------------------------- */
+
+.poster-header {
+  position: relative;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 78%, var(--green-600) 100%);
+  border-bottom: 6px solid var(--gold);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand-logo {
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.brand-name {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.brand-tag {
+  color: var(--green-100);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.headline-title {
+  font-weight: 700;
+  line-height: 1.15;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.headline-subtitle {
+  color: var(--green-100);
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* Date card — the big date block in the header */
+.date-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(2px);
+  text-align: center;
+}
+
+.date-card-label {
+  color: var(--green-100);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.date-card-value {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.date-card-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  background: rgba(224, 166, 58, 0.92);
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* ---------- Commodity grid ------------------------------------------- */
+
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Fill the body's free height and share it equally between rows, so
+     any reasonable item count fits without clipping. */
+  flex: 1 1 auto;
+  grid-auto-rows: minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* ---------- Commodity card component ---------------------------------- */
+
+.commodity-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.card-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green-50);
+  border: 1.5px solid var(--green-100);
+  border-radius: var(--radius-sm);
+}
+
+.card-icon img {
+  width: 68%;
+  height: 68%;
+}
+
+.card-heading {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Auto-fit target — JS shrinks font-size until this fits on one line */
+.card-name {
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.card-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.card-location::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.card-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-price-group {
+  min-width: 0;
+}
+
+.card-price {
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.card-unit {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* ---------- Change badge (arrow + percent) ----------------------------- */
+
+.change-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.change-badge .arrow {
+  line-height: 1;
+}
+
+.change-badge.is-up {
+  color: var(--up);
+  background: var(--up-bg);
+}
+
+.change-badge.is-down {
+  color: var(--down);
+  background: var(--down-bg);
+}
+
+.change-badge.is-flat {
+  color: var(--flat);
+  background: var(--flat-bg);
+}
+
+/* Direction accent bar on the card's left edge */
+.commodity-card.is-up { border-left: 6px solid var(--up); }
+.commodity-card.is-down { border-left: 6px solid var(--down); }
+.commodity-card.is-flat { border-left: 6px solid var(--line); }
+
+/* ---------- Footer component ------------------------------------------- */
+
+.poster-footer {
+  color: #ffffff;
+  background: linear-gradient(315deg, var(--green-900) 0%, var(--green-800) 100%);
+  border-top: 6px solid var(--gold);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.stat-pill-value {
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-pill-label {
+  color: var(--green-100);
+}
+
+.stat-pill.is-up .stat-pill-value { color: #7fe0a8; }
+.stat-pill.is-down .stat-pill-value { color: #ff9b8a; }
+
+.footer-meta {
+  text-align: right;
+}
+
+.footer-sources {
+  color: var(--green-100);
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.footer-brand img {
+  border-radius: 50%;
+}
+
+/* Highlight strip: highest increase / decrease */
+.extremes {
+  display: flex;
+  gap: 16px;
+}
+
+.extreme {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.extreme-label {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.extreme-name {
+  font-weight: 700;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.extreme-value {
+  margin-left: auto;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.extreme.is-up .extreme-value { color: var(--up); }
+.extreme.is-down .extreme-value { color: var(--down); }

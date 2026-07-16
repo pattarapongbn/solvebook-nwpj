@@ -1,0 +1,77 @@
+/* =====================================================================
+   Square poster — 1080 x 1080 (1:1)
+   Neutral base for future formats (LINE OA, X, thumbnails).
+   ===================================================================== */
+
+.poster {
+  width: 1080px;
+  height: 1080px;
+}
+
+/* ---------- Header ---------- */
+
+.poster-header {
+  padding: 34px 52px 28px;
+}
+
+.brand-logo { width: 62px; height: 62px; }
+.brand-name { font-size: 26px; }
+.brand-tag { font-size: 13px; }
+
+.headline { margin-top: 18px; }
+.headline-title { font-size: 50px; }
+.headline-subtitle { font-size: 18px; margin-top: 6px; }
+
+.date-card { padding: 16px 24px; }
+.date-card-label { font-size: 12px; }
+.date-card-value { font-size: 25px; margin-top: 4px; }
+.date-card-updated { font-size: 15px; padding: 5px 14px; margin-top: 10px; }
+
+/* ---------- Body ---------- */
+
+.poster-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 52px;
+  min-height: 0;
+}
+
+.market-grid {
+  gap: 20px;
+}
+
+.commodity-card {
+  padding: 20px 24px;
+  min-height: 140px;
+  gap: 14px;
+}
+
+.card-icon { width: 54px; height: 54px; }
+.card-name { font-size: 26px; }
+.card-location { font-size: 16px; margin-top: 3px; }
+.card-price { font-size: 36px; }
+.card-unit { font-size: 15px; margin-top: 5px; }
+.change-badge { font-size: 18px; padding: 6px 14px; }
+.change-badge .arrow { font-size: 17px; }
+
+.extremes { margin-top: 0; }
+.extreme { padding: 12px 18px; }
+.extreme-label { font-size: 14px; }
+.extreme-name { font-size: 17px; }
+.extreme-value { font-size: 19px; }
+
+/* ---------- Footer ---------- */
+
+.poster-footer {
+  padding: 22px 52px 26px;
+}
+
+.stat-pill { min-width: 108px; padding: 10px 14px; }
+.stat-pill-value { font-size: 28px; }
+.stat-pill-label { font-size: 13px; margin-top: 3px; }
+
+.footer-sources { font-size: 14px; }
+.footer-brand { font-size: 17px; margin-top: 6px; }
+.footer-brand img { width: 28px; height: 28px; }

@@ -1,0 +1,6 @@
+node_modules
+.env
+.git
+storage/images/*.png
+storage/logs/*.log
+README.md

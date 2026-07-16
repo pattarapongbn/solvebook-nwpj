@@ -1,0 +1,27 @@
+{
+  "name": "lumpufarm-publisher",
+  "version": "1.0.0",
+  "description": "Self-hosted social media graphic generator for Thai agricultural market data. Receives JSON from n8n, renders HTML templates with Playwright, and returns PNG images.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "playwright",
+    "png",
+    "social-media",
+    "n8n",
+    "agriculture",
+    "thailand"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "playwright": "1.49.1"
+  }
+}
