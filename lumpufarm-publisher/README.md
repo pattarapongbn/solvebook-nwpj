@@ -147,7 +147,7 @@ Publishes a stored image to a Facebook Page (returns `501` until
 ```json
 {
   "date": "16 กรกฎาคม 2569",
-  "title": "ราคาพืชผลเกษตรไทย",
+  "title": "ราคาพืชผลเกษตรวันนี้",
   "items": [
     { "name": "ข้าวหอมมะลิ", "price": "14,500", "unit": "บาท/ตัน", "change": 2.1 }
   ]
@@ -161,7 +161,7 @@ Publishes a stored image to a Facebook Page (returns `501` until
   "template": "facebook",
   "date": "16 กรกฎาคม 2569",
   "updated": "06:30",
-  "title": "ราคาพืชผลเกษตรไทย",
+  "title": "ราคาพืชผลเกษตรวันนี้",
   "subtitle": "Daily Market Update",
   "sources": "ที่มา: กรมการค้าภายใน / ตลาดไท",
   "items": [

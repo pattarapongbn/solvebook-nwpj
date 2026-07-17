@@ -23,7 +23,7 @@ let renderStarted = false;
 const PREVIEW_DATA = {
   date: '16 กรกฎาคม 2569',
   updated: '06:30',
-  title: 'ราคาพืชผลเกษตรไทย',
+  title: 'ราคาพืชผลเกษตรวันนี้',
   subtitle: 'Daily Market Update',
   sources: 'ที่มา: กรมการค้าภายใน / ตลาดกลางสินค้าเกษตร',
   items: [
