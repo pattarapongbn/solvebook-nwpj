@@ -366,6 +366,37 @@ img {
   border-radius: 50%;
 }
 
+/* ---------- Density scaling ------------------------------------------- */
+
+/* poster.js sets data-density from the item count:
+   normal (<=6) / compact (7-10) / dense (11-14) / ultra (15+).
+   Cards drop their min-height and zoom down so every row fits inside
+   the grid's equal-height tracks — cards can never overlap. Templates
+   add columns for dense/ultra where their aspect ratio allows. */
+
+.poster[data-density='compact'] .commodity-card,
+.poster[data-density='dense'] .commodity-card,
+.poster[data-density='ultra'] .commodity-card {
+  min-height: 0;
+}
+
+/* Rows size to content at higher densities so real overflow becomes
+   measurable — poster.js then zooms the grid down until it fits. */
+.poster[data-density='compact'] .market-grid,
+.poster[data-density='dense'] .market-grid,
+.poster[data-density='ultra'] .market-grid {
+  grid-auto-rows: auto;
+  align-content: start;
+}
+
+.poster[data-density='compact'] .commodity-card { zoom: 0.9; }
+.poster[data-density='dense'] .commodity-card { zoom: 0.85; }
+.poster[data-density='ultra'] .commodity-card { zoom: 0.8; }
+
+.poster[data-density='compact'] .extreme { zoom: 0.9; }
+.poster[data-density='dense'] .extreme { zoom: 0.8; }
+.poster[data-density='ultra'] .extreme { zoom: 0.75; }
+
 /* Highlight strip: highest increase / decrease */
 .extremes {
   display: flex;

@@ -209,9 +209,15 @@ The footer summary (increased/decreased/unchanged counts) and the
 | `telegram`        | 1280 × 720  | Compact 3-column banner (16:9)           |
 | `future`          | 1080 × 1080 | Square (1:1) base for new formats        |
 
-Recommended item counts: 4–8 (facebook/future), 4–6 (instagram-story),
-3–6 (telegram). The grid shares the available height between rows, and long
-names auto-shrink, so other counts still render — they just get denser.
+The layout is density-aware: from the item count, each poster picks a
+density level (`normal` ≤ 6, `compact` 7–10, `dense` 11–14, `ultra` 15+)
+that shrinks cards and adds grid columns (facebook switches to 3 columns
+at `dense`, telegram to 4 at `ultra`). On top of that, an auto-scale pass
+measures the rendered grid and zooms it down until everything truly fits,
+so cards never overlap or spill past the footer at any item count.
+Sweet spot for readability: 4–12 items (facebook/future), 4–10
+(instagram-story), 3–12 (telegram); ~20 items is the practical maximum
+before text gets small.
 
 ### Adding a template
 

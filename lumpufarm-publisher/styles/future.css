@@ -75,3 +75,20 @@
 .footer-sources { font-size: 14px; }
 .footer-brand { font-size: 17px; margin-top: 6px; }
 .footer-brand img { width: 28px; height: 28px; }
+
+/* ---------- Density: auto-fit for large item counts ---------- */
+
+.poster[data-density='compact'] .poster-body { gap: 16px; padding: 22px 52px; }
+.poster[data-density='compact'] .market-grid { gap: 16px; }
+
+.poster[data-density='dense'] .poster-body { gap: 12px; padding: 18px 44px; }
+.poster[data-density='dense'] .market-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.poster[data-density='ultra'] .poster-body { gap: 10px; padding: 16px 36px; }
+.poster[data-density='ultra'] .market-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}

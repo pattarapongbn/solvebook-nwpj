@@ -81,3 +81,14 @@
 .footer-sources { font-size: 11px; }
 .footer-brand { font-size: 14px; margin-top: 4px; }
 .footer-brand img { width: 22px; height: 22px; }
+
+/* ---------- Density: auto-fit for large item counts ---------- */
+
+.poster[data-density='dense'] .poster-body { gap: 10px; padding: 16px 36px; }
+.poster[data-density='dense'] .market-grid { gap: 12px; }
+
+.poster[data-density='ultra'] .poster-body { gap: 8px; padding: 14px 32px; }
+.poster[data-density='ultra'] .market-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}

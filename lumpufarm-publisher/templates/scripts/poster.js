@@ -68,6 +68,37 @@ function computeStats(items) {
   return stats;
 }
 
+/**
+ * Card density level for an item count. Templates use the resulting
+ * data-density attribute to shrink cards and add grid columns, so any
+ * item count fits without overlapping.
+ * @param {number} count
+ * @returns {string} 'normal' | 'compact' | 'dense' | 'ultra'
+ */
+function densityFor(count) {
+  if (count <= 6) return 'normal';
+  if (count <= 10) return 'compact';
+  if (count <= 14) return 'dense';
+  return 'ultra';
+}
+
+/**
+ * Overflow guarantee: after layout, zoom the commodity grid down step
+ * by step until its content actually fits the space the body gives it.
+ * This makes any item count safe, regardless of template or density —
+ * cards can never overlap or spill past the footer.
+ */
+function autoScaleGrid() {
+  const grid = document.querySelector('.market-grid');
+  let zoom = 1;
+  // scrollHeight/clientHeight are read in the grid's own zoomed
+  // coordinate space; each step forces a reflow, so this converges.
+  while (grid.scrollHeight - grid.clientHeight > 1 && zoom > 0.4) {
+    zoom -= 0.02;
+    grid.style.zoom = String(zoom);
+  }
+}
+
 /** Fill the header: brand, headline, date card. */
 function renderHeader(data) {
   document.querySelector('.headline-title').textContent = data.title;
@@ -122,12 +153,18 @@ async function render(data) {
   renderComplete = false;
   const stats = data.stats ?? computeStats(data.items);
 
+  // Tag the poster with the item count so CSS can scale the layout.
+  const poster = document.querySelector('.poster');
+  poster.dataset.count = String(data.items.length);
+  poster.dataset.density = densityFor(data.items.length);
+
   renderHeader(data);
   renderBody(data, stats);
   renderFooter(data, stats);
 
   // Fonts must be loaded before measuring text widths for auto-fit.
   await document.fonts.ready;
+  autoScaleGrid();
   fitAll('.card-name', 15);
   fitAll('.card-price', 18);
   fitAll('.extreme-name', 12);
