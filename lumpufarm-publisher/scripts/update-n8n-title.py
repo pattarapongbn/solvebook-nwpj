@@ -16,6 +16,10 @@ Usage:
   export N8N_API_KEY="<your n8n API key>"
   export N8N_WORKFLOW_ID="1pTqhtIeSJJiDcUG"
 
+  # 0) Find the real title text (when a dry-run reports 0 matches):
+  python3 update-n8n-title.py --find          # lists strings containing "ราคา"
+  FIND="พืชผล" python3 update-n8n-title.py --find   # search a different word
+
   # 1) Dry run — shows what would change, writes nothing:
   python3 update-n8n-title.py --dry-run
 
@@ -44,6 +48,8 @@ API_KEY = os.environ.get("N8N_API_KEY", "")
 WORKFLOW_ID = os.environ.get("N8N_WORKFLOW_ID", "1pTqhtIeSJJiDcUG")
 
 DRY_RUN = "--dry-run" in sys.argv
+FIND_MODE = "--find" in sys.argv
+FIND_TERM = os.environ.get("FIND", "ราคา")
 
 
 def die(msg):
@@ -126,6 +132,39 @@ def put_workflow(payload):
         die(f"PUT returned HTTP {status}: {text[:400]}")
 
 
+def walk_strings(value, path=""):
+    """Yield (json_path, string) for every string inside a nested structure."""
+    if isinstance(value, str):
+        yield path, value
+    elif isinstance(value, dict):
+        for key, sub in value.items():
+            yield from walk_strings(sub, f"{path}.{key}" if path else key)
+    elif isinstance(value, list):
+        for i, sub in enumerate(value):
+            yield from walk_strings(sub, f"{path}[{i}]")
+
+
+def find_strings(wf, term):
+    """Print every string in the workflow's nodes that contains `term`."""
+    print(f"Searching node text for {term!r} ...\n")
+    hits = 0
+    for node in wf.get("nodes", []):
+        node_name = node.get("name", "?")
+        for path, text in walk_strings(node.get("parameters", {})):
+            if term in text:
+                hits += 1
+                # Collapse whitespace so the exact spelling is easy to copy.
+                shown = text if len(text) <= 120 else text[:117] + "..."
+                print(f"  [node: {node_name}]  {path}")
+                print(f"    value: {shown!r}\n")
+    if hits == 0:
+        print(f"  (no strings containing {term!r} found in any node)")
+    else:
+        print(f"Total: {hits} matching string(s).")
+        print("Copy the exact title text above into OLD_TITLE, e.g.:")
+        print("  export OLD_TITLE='<paste exact text>'")
+
+
 def main():
     if not BASE:
         die("set N8N_BASE (e.g. https://lumphufarm.duckdns.org)")
@@ -135,6 +174,10 @@ def main():
     print(f"Fetching workflow {WORKFLOW_ID} from {BASE} ...")
     wf = get_workflow()
     print(f"  name: {wf.get('name')!r}")
+
+    if FIND_MODE:
+        find_strings(wf, FIND_TERM)
+        return
 
     # Count occurrences of OLD_TITLE inside the nodes only.
     nodes_json = json.dumps(wf.get("nodes", []), ensure_ascii=False)
