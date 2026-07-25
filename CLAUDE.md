@@ -6,7 +6,8 @@ Internal research tool (single user) สำหรับหาสินค้า�
 
 - `frontend/` — Next.js (App Router) + TypeScript strict + Tailwind + shadcn/ui-style components
 - `backend/` — FastAPI, layered: `api/routes` → `services` → `repositories` → SQLAlchemy models
-- `storefront/` — หน้าสั่งซื้อของลูกค้า (static HTML ไฟล์เดียว + jsQR) ต่อ backend ผ่าน `window.SCOUT_API_BASE`
+- `frontend/public/shop/` — หน้าสั่งซื้อของลูกค้า (static + jsQR) เสิร์ฟที่ `/shop/` ต่อ backend ผ่าน `window.SCOUT_API_BASE`
+- `frontend/api/index.py` — entry ของ FastAPI บน Vercel · `prebuild` คัดลอก `backend/app` มาให้ (ห้ามแก้ที่สำเนา)
 
 ## Hard Rules
 
@@ -29,4 +30,5 @@ Internal research tool (single user) สำหรับหาสินค้า�
 - Crawler: `cd backend && python -m app.crawlers.run --keywords-file ../crawl/keywords.txt`
 - Daily job: GitHub Actions `.github/workflows/daily-crawl.yml` (secret `DATABASE_URL`)
 - Dev DB แบบไม่มี Postgres: `DATABASE_URL=sqlite:///./scout.db`
-- Storefront: `cd storefront && python3 -m http.server 8080`
+- Storefront: `cd frontend/public/shop && python3 -m http.server 8080`
+- Deploy: ดู `DEPLOY.md` — Vercel root directory = `frontend`

@@ -48,6 +48,10 @@ class SlipSubmit(BaseModel):
     image_hash: str = Field(min_length=16, max_length=64)
     image_url: str | None = None
     qr_payload: str | None = Field(default=None, max_length=1024)
+    # รูปสลิปแบบ base64 (ไม่มี data: prefix) — หน้าร้านย่อภาพให้เหลือ ~150–250 KB ก่อนส่ง
+    # 4 MB คือเพดานกันภาพหลุดขนาด ไม่ใช่ขนาดที่คาดหวัง
+    image_base64: str | None = Field(default=None, max_length=4_000_000)
+    image_content_type: str = Field(default="image/jpeg", max_length=32)
 
 
 class SlipResult(BaseModel):
@@ -65,6 +69,7 @@ class SlipItem(BaseModel):
     transaction_ref: str | None
     sending_bank: str | None
     image_url: str | None
+    has_image: bool = False
     verified_by: str | None
     verified_at: datetime | None
     created_at: datetime

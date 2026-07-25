@@ -16,9 +16,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AdminTokenGate } from "@/features/orders/admin-token-gate";
 import { deleteCustomer, downloadCustomersCsv, listCustomers } from "@/features/orders/api";
 import { formatBaht, formatDateTime } from "@/features/orders/status";
 import type { Customer } from "@/features/orders/types";
+import { ApiError } from "@/lib/api";
 
 export default function AdminCustomersPage() {
   const [keyword, setKeyword] = useState("");
@@ -59,11 +61,14 @@ export default function AdminCustomersPage() {
         <Card className="py-12 text-center text-sm text-gray-500">กำลังโหลด...</Card>
       )}
 
-      {customers.isError && (
-        <Card className="py-12 text-center text-sm text-gray-500">
-          โหลดข้อมูลลูกค้าไม่สำเร็จ — ตรวจว่า backend เปิดอยู่ และตั้งโทเคนแอดมินถูกต้อง
-        </Card>
-      )}
+      {customers.isError &&
+        (customers.error instanceof ApiError && customers.error.status === 401 ? (
+          <AdminTokenGate onSaved={() => void customers.refetch()} />
+        ) : (
+          <Card className="py-12 text-center text-sm text-gray-500">
+            โหลดข้อมูลลูกค้าไม่สำเร็จ — ตรวจว่า backend เปิดอยู่และ DATABASE_URL ถูกต้อง
+          </Card>
+        ))}
 
       {customers.data && rows.length === 0 && (
         <Card className="py-12 text-center text-sm text-gray-500">ไม่พบลูกค้าที่ตรงเงื่อนไข</Card>

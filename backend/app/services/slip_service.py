@@ -12,7 +12,13 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
-from app.models.order import Order, PaymentSlip, PaymentStatus, SlipCheckStatus
+from app.models.order import (
+    Order,
+    PaymentSlip,
+    PaymentSlipImage,
+    PaymentStatus,
+    SlipCheckStatus,
+)
 from app.repositories.order_repository import OrderRepository
 from app.repositories.slip_repository import SlipRepository
 from app.schemas.orders import SlipResult, SlipSubmit
@@ -56,7 +62,7 @@ class SlipService:
 
         if duplicate_of is not None:
             # บันทึกความพยายามไว้ให้แอดมินเห็น แต่ไม่แตะ transaction_ref (unique)
-            self.slips.add(
+            rejected = self.slips.add(
                 PaymentSlip(
                     order_id=order.id,
                     image_url=payload.image_url,
@@ -67,6 +73,7 @@ class SlipService:
                     check_status=SlipCheckStatus.DUPLICATE,
                 )
             )
+            self._attach_image(rejected, payload)
             self.orders.commit()
             return SlipResult(
                 check_status=SlipCheckStatus.DUPLICATE, accepted=False, message=MSG_DUPLICATE
@@ -75,7 +82,7 @@ class SlipService:
         check_status = (
             SlipCheckStatus.QR_OK if parsed.transaction_ref else SlipCheckStatus.QR_UNREADABLE
         )
-        self.slips.add(
+        slip = self.slips.add(
             PaymentSlip(
                 order_id=order.id,
                 image_url=payload.image_url,
@@ -88,6 +95,7 @@ class SlipService:
                 verified_at=datetime.now(timezone.utc) if parsed.transaction_ref else None,
             )
         )
+        self._attach_image(slip, payload)
         if order.payment_status == PaymentStatus.AWAITING_PAYMENT:
             order.payment_status = PaymentStatus.SLIP_SUBMITTED
         self.orders.commit()
@@ -97,6 +105,19 @@ class SlipService:
             accepted=True,
             message=MSG_OK if parsed.transaction_ref else MSG_UNREADABLE,
             transaction_ref=parsed.transaction_ref,
+        )
+
+    def _attach_image(self, slip: PaymentSlip, payload: SlipSubmit) -> None:
+        """เก็บรูปสลิปไว้ให้แอดมินเปิดดูได้ — จำเป็นกับเคส qr_unreadable ที่ต้องตรวจด้วยตา"""
+        if not payload.image_base64:
+            return
+        self.slips.add_image(
+            PaymentSlipImage(
+                slip_id=slip.id,
+                content_type=payload.image_content_type,
+                data_base64=payload.image_base64,
+                byte_size=len(payload.image_base64) * 3 // 4,
+            )
         )
 
     def _find_same_order_slip(

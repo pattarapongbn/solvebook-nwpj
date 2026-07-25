@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AdminTokenGate } from "@/features/orders/admin-token-gate";
 import {
+  fetchSlipImage,
   listOrders,
   listUnmatchedPayments,
   markPaid,
@@ -31,6 +33,7 @@ import {
   formatDateTime,
 } from "@/features/orders/status";
 import type { Order, PaymentStatus } from "@/features/orders/types";
+import { ApiError } from "@/lib/api";
 
 const STATUS_OPTIONS: { value: PaymentStatus | ""; label: string }[] = [
   { value: "", label: "ทุกสถานะ" },
@@ -121,11 +124,14 @@ export default function AdminOrdersPage() {
         <Card className="py-12 text-center text-sm text-gray-500">กำลังโหลด...</Card>
       )}
 
-      {orders.isError && (
-        <Card className="py-12 text-center text-sm text-gray-500">
-          โหลดออเดอร์ไม่สำเร็จ — ตรวจว่า backend เปิดอยู่ และตั้งโทเคนแอดมินถูกต้อง
-        </Card>
-      )}
+      {orders.isError &&
+        (orders.error instanceof ApiError && orders.error.status === 401 ? (
+          <AdminTokenGate onSaved={() => void orders.refetch()} />
+        ) : (
+          <Card className="py-12 text-center text-sm text-gray-500">
+            โหลดออเดอร์ไม่สำเร็จ — ตรวจว่า backend เปิดอยู่และ DATABASE_URL ถูกต้อง
+          </Card>
+        ))}
 
       {orders.data && orders.data.length === 0 && (
         <Card className="py-12 text-center text-sm text-gray-500">ยังไม่มีออเดอร์</Card>
@@ -206,6 +212,7 @@ function OrderRow({
                 ref {latestSlip.transaction_ref}
               </div>
             )}
+            {latestSlip.has_image && <SlipImage slipId={latestSlip.id} />}
           </div>
         ) : (
           <span className="text-xs text-gray-400">ยังไม่แนบ</span>
@@ -279,5 +286,43 @@ function UnmatchedRow({
         ผูกออเดอร์
       </Button>
     </div>
+  );
+}
+
+function SlipImage({ slipId }: { slipId: number }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => () => {
+    if (url) URL.revokeObjectURL(url);
+  }, [url]);
+
+  if (failed) return <span className="text-xs text-gray-400">เปิดรูปไม่ได้</span>;
+
+  if (!url) {
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => {
+          fetchSlipImage(slipId)
+            .then(setUrl)
+            .catch(() => setFailed(true));
+        }}
+      >
+        ดูสลิป
+      </Button>
+    );
+  }
+
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="block">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt="สลิปโอนเงิน"
+        className="max-h-48 w-32 rounded-lg border border-gray-200 object-cover"
+      />
+    </a>
   );
 }

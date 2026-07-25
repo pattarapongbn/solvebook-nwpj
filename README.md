@@ -18,9 +18,10 @@ Single user · Desktop first · Data first
 
 ```
 scout/
-├── frontend/     # Next.js app (Search UI, Favorites, History, Admin orders/customers)
-├── backend/      # FastAPI (API → Service → Repository → Database)
-├── storefront/   # หน้าสั่งซื้อของลูกค้า (static HTML ต่อกับ backend)
+├── frontend/               # Next.js app (Search UI, Admin orders/customers, /privacy)
+│   ├── api/index.py        # entry ของ FastAPI บน Vercel
+│   └── public/shop/        # หน้าสั่งซื้อของลูกค้า (static)
+├── backend/                # FastAPI (API → Service → Repository → Database)
 └── docker-compose.yml
 ```
 
@@ -81,8 +82,9 @@ python -m app.crawlers.run --keywords-file ../crawl/keywords.txt --sources amazo
 
 ## ระบบขาย: ตรวจสลิป + ฐานข้อมูลลูกค้า
 
-หน้าร้านอยู่ใน `storefront/` (ดู `storefront/README.md`) หลังร้านอยู่ที่ `/admin/orders`
-และ `/admin/customers` ในแอป Next.js
+หน้าร้านอยู่ที่ `/shop/` (ไฟล์อยู่ใน `frontend/public/shop/`) หลังร้านอยู่ที่
+`/admin/orders` และ `/admin/customers` — ทั้งหมด deploy พร้อมกันในโปรเจกต์ Vercel เดียว
+ดูขั้นตอนขึ้น production ที่ **[DEPLOY.md](DEPLOY.md)**
 
 **ตรวจสลิปแบบไม่เสียค่าบริการ ทำ 2 ชั้นซ้อนกัน**
 
@@ -105,8 +107,12 @@ export CSV ได้จาก `/admin/customers` และมี soft delete ต
 **ขนส่ง** ผ่าน adapter layer ใน `backend/app/fulfillment/` เปลี่ยนเจ้าด้วย env
 `FULFILLMENT_PROVIDER` (ตอนนี้ `manual` = แอดมินกรอกเลขพัสดุเอง)
 
+รูปสลิปเก็บในฐานข้อมูล (ตาราง `payment_slip_images`) แอดมินกดดูได้จากหน้าออเดอร์ —
+จำเป็นกับเคส `qr_unreadable` ที่ต้องตรวจด้วยตา ถ้าออเดอร์เยอะจนฐานข้อมูลโต
+ค่อยย้ายไป object storage แล้วเก็บที่อยู่ไฟล์ลง `payment_slips.image_url` แทน
+
 ตัวแปร env ที่เกี่ยวข้อง: `PROMPTPAY_TARGET`, `SHOP_NAME`, `PAYMENT_WINDOW_MINUTES`,
-`BANK_WEBHOOK_SECRET`, `ADMIN_TOKEN`, `FULFILLMENT_PROVIDER`
+`BANK_WEBHOOK_SECRET`, `ADMIN_TOKEN`, `FULFILLMENT_PROVIDER`, `AUTO_CREATE_TABLES`
 
 ## Development Priority
 

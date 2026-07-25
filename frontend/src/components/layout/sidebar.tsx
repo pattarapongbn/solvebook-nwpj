@@ -15,8 +15,12 @@ const NAV_ITEMS = [
   { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+// หน้าที่ลูกค้าเห็น ไม่ควรมีเมนูเครื่องมือภายในโผล่มา
+const PUBLIC_ROUTES = ["/privacy"];
+
 export function Sidebar() {
   const pathname = usePathname();
+  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) return null;
   return (
     <>
       {/* Desktop: sidebar ซ้าย */}

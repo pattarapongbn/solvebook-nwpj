@@ -184,6 +184,35 @@ class PaymentSlip(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     order: Mapped[Order] = relationship(back_populates="slips")
+    image: Mapped["PaymentSlipImage | None"] = relationship(
+        back_populates="slip", cascade="all, delete-orphan", uselist=False, lazy="selectin"
+    )
+
+    @property
+    def has_image(self) -> bool:
+        return self.image is not None
+
+
+class PaymentSlipImage(Base):
+    """รูปสลิป เก็บแยกตารางเพื่อไม่ให้ตารางหลักอืดเวลา query รายการออเดอร์
+
+    เก็บเป็น base64 ในฐานข้อมูลเพื่อไม่ต้องพึ่ง object storage ตั้งแต่วันแรก
+    ถ้าออเดอร์เยอะจนฐานข้อมูลเริ่มโต ให้ย้ายไป Supabase Storage / S3 แล้วเก็บ
+    ที่อยู่ไฟล์ลง payment_slips.image_url แทน (คอลัมน์มีรออยู่แล้ว)
+    """
+
+    __tablename__ = "payment_slip_images"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    slip_id: Mapped[int] = mapped_column(
+        ForeignKey("payment_slips.id"), unique=True, index=True
+    )
+    content_type: Mapped[str] = mapped_column(String(32), default="image/jpeg")
+    data_base64: Mapped[str] = mapped_column(Text)
+    byte_size: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    slip: Mapped[PaymentSlip] = relationship(back_populates="image")
 
 
 class UnmatchedPayment(Base):

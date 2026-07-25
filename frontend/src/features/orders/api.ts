@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 
 import type { Customer, Order, PaymentStatus, UnmatchedPayment } from "./types";
 
@@ -70,6 +70,15 @@ export function deleteCustomer(customerId: number): Promise<{ ok: boolean }> {
     method: "DELETE",
     headers: adminHeaders(),
   });
+}
+
+/** โหลดรูปสลิปมาเป็น object URL — ต้องยิงเองเพราะ <img> ส่ง header โทเคนไม่ได้ */
+export async function fetchSlipImage(slipId: number): Promise<string> {
+  const res = await fetch(`${API_URL}/api/v1/admin/slips/${slipId}/image`, {
+    headers: adminHeaders(),
+  });
+  if (!res.ok) throw new ApiError(res.status, `โหลดรูปสลิปไม่สำเร็จ (${res.status})`);
+  return URL.createObjectURL(await res.blob());
 }
 
 /** ดาวน์โหลด CSV — ต้องยิงเองเพราะ response เป็นไฟล์ ไม่ใช่ JSON */

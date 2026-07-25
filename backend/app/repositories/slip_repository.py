@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.order import PaymentSlip
+from app.models.order import PaymentSlip, PaymentSlipImage
 
 
 class SlipRepository:
@@ -40,3 +40,13 @@ class SlipRepository:
 
     def get(self, slip_id: int) -> PaymentSlip | None:
         return self.db.get(PaymentSlip, slip_id)
+
+    def add_image(self, image: PaymentSlipImage) -> PaymentSlipImage:
+        self.db.add(image)
+        self.db.flush()
+        return image
+
+    def get_image(self, slip_id: int) -> PaymentSlipImage | None:
+        return self.db.execute(
+            select(PaymentSlipImage).where(PaymentSlipImage.slip_id == slip_id)
+        ).scalars().first()

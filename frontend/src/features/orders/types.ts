@@ -29,6 +29,7 @@ export interface Slip {
   transaction_ref: string | null;
   sending_bank: string | null;
   image_url: string | null;
+  has_image: boolean;
   verified_by: string | null;
   verified_at: string | null;
   created_at: string;

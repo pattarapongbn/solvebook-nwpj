@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     # โทเคนสำหรับหน้า /admin — ว่าง = ไม่ตรวจ (dev เท่านั้น)
     admin_token: str = ""
 
+    # สร้างตารางที่ยังไม่มีตอนแอปเริ่ม — ไว้ใช้บน serverless ที่ไม่มีขั้นตอน migrate แยก
+    auto_create_tables: bool = True
+
     # --- การจัดส่ง ---
     fulfillment_provider: str = "manual"
     default_parcel_weight_gram: int = 600
@@ -44,6 +47,17 @@ class Settings(BaseSettings):
     def _strip_whitespace(cls, value: object) -> object:
         # secret ที่ paste จากมือถือมักติด newline มาด้วย — กัน "database \"postgres\\n\" does not exist"
         return value.strip() if isinstance(value, str) else value
+
+    @field_validator("database_url", mode="after")
+    @classmethod
+    def _normalize_driver(cls, value: str) -> str:
+        # ผู้ให้บริการ (Neon / Vercel Postgres / Supabase) ส่ง URL มาแบบ postgres:// หรือ
+        # postgresql:// ซึ่ง SQLAlchemy ต้องการ driver ระบุชัด — เติมให้เอง จะได้ไม่ต้อง
+        # แก้ค่าที่ integration ตั้งให้อัตโนมัติ
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg2://" + value[len(prefix) :]
+        return value
 
     @property
     def cors_origin_list(self) -> list[str]:

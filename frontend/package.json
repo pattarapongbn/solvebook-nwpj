@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare:vercel": "node scripts/prepare-vercel.mjs",
+    "prebuild": "node scripts/prepare-vercel.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

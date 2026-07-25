@@ -1,5 +1,7 @@
 """หน้าหลังร้าน: ดูออเดอร์/ยืนยันเงินเข้า/เลขพัสดุ และฐานข้อมูลลูกค้า"""
 
+import base64
+import binascii
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -9,6 +11,7 @@ from app.api.deps import require_admin
 from app.db.session import get_db
 from app.models.order import PaymentStatus
 from app.repositories.order_repository import OrderRepository
+from app.repositories.slip_repository import SlipRepository
 from app.schemas.orders import (
     CustomerItem,
     MarkPaidInput,
@@ -74,6 +77,23 @@ def set_tracking(
     except ShipOrderNotFound:
         raise HTTPException(status_code=404, detail="ไม่พบออเดอร์นี้")
     return {"ok": True}
+
+
+@router.get("/admin/slips/{slip_id}/image")
+def get_slip_image(slip_id: int, db: Annotated[Session, Depends(get_db)]) -> Response:
+    """รูปสลิปสำหรับแอดมินตรวจด้วยตา — โดยเฉพาะใบที่อ่าน QR ไม่ออก"""
+    image = SlipRepository(db).get_image(slip_id)
+    if image is None:
+        raise HTTPException(status_code=404, detail="ไม่พบรูปสลิปนี้")
+    try:
+        content = base64.b64decode(image.data_base64, validate=True)
+    except (binascii.Error, ValueError):
+        raise HTTPException(status_code=422, detail="ไฟล์รูปสลิปเสียหาย")
+    return Response(
+        content=content,
+        media_type=image.content_type,
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.get("/admin/unmatched-payments", response_model=list[UnmatchedPaymentItem])
