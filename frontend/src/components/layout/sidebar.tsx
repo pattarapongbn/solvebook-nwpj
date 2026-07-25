@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, History, Search, Settings } from "lucide-react";
+import { Heart, History, Receipt, Search, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { href: "/search", label: "Search", icon: Search },
   { href: "/favorites", label: "Favorites", icon: Heart },
   { href: "/history", label: "History", icon: History },
+  { href: "/admin/orders", label: "Orders", icon: Receipt },
+  { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 

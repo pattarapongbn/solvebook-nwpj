@@ -18,8 +18,9 @@ Single user · Desktop first · Data first
 
 ```
 scout/
-├── frontend/   # Next.js app (Search UI, Favorites, History, Settings)
-├── backend/    # FastAPI (API → Service → Repository → Database)
+├── frontend/     # Next.js app (Search UI, Favorites, History, Admin orders/customers)
+├── backend/      # FastAPI (API → Service → Repository → Database)
+├── storefront/   # หน้าสั่งซื้อของลูกค้า (static HTML ต่อกับ backend)
 └── docker-compose.yml
 ```
 
@@ -78,14 +79,44 @@ python -m app.crawlers.run --keywords-file ../crawl/keywords.txt --sources amazo
   — ต้องตั้ง repo secret `DATABASE_URL` ชี้ไป Postgres/Supabase
 - Snapshot เป็น append-only: วันละแถวต่อสินค้า รันซ้ำวันเดิมไม่เขียนทับ
 
+## ระบบขาย: ตรวจสลิป + ฐานข้อมูลลูกค้า
+
+หน้าร้านอยู่ใน `storefront/` (ดู `storefront/README.md`) หลังร้านอยู่ที่ `/admin/orders`
+และ `/admin/customers` ในแอป Next.js
+
+**ตรวจสลิปแบบไม่เสียค่าบริการ ทำ 2 ชั้นซ้อนกัน**
+
+1. **อ่าน QR บนสลิป** — ทำในเครื่องลูกค้าด้วย jsQR ไม่ส่งภาพออกไปไหน
+   ส่งมาแค่เลขอ้างอิงธุรกรรมกับ SHA-256 ของไฟล์ เลขอ้างอิงเป็น unique index
+   สลิปที่เคยใช้กับออเดอร์อื่นแล้วจะถูกปฏิเสธทันที
+   อ่าน QR ไม่ออก = ผ่านได้แต่ flag ไว้ให้แอดมินตรวจ (ห้ามบล็อกลูกค้าจริง)
+2. **ยอดโอนไม่ซ้ำ** — แต่ละออเดอร์ได้เศษสตางค์สุ่มที่ไม่ชนกับออเดอร์อื่นที่ยังรอจ่าย
+   (890.00 → 890.37) แล้วฝังยอดนี้ใน QR พร้อมเพย์ พอธนาคารแจ้งเงินเข้ามาที่
+   `POST /api/v1/payments/bank-notify` (ยิงผ่าน Zapier ที่ parse อีเมลแจ้งเตือน)
+   ระบบจับคู่ออเดอร์ได้เลยโดยไม่ต้องเดา จับคู่ไม่ได้ก็เก็บใน `unmatched_payments`
+
+จะอัปเกรดไปใช้ SlipOK / EasySlip เมื่อออเดอร์เยอะพอ ให้เพิ่มการเรียก API ใน
+`SlipService.submit()` ที่เดียว ไม่ต้องแก้ที่อื่น
+
+**ฐานข้อมูลลูกค้า** เก็บที่อยู่แยกฟิลด์ (ตำบล/อำเภอ/จังหวัด/รหัสไปรษณีย์ + ช่องรหัสราชการ)
+พร้อม `shipping_snapshot` แช่แข็งที่อยู่ ณ เวลาสั่ง ลูกค้าย้ายบ้านแล้วออเดอร์เก่ายังถูก
+export CSV ได้จาก `/admin/customers` และมี soft delete ตาม PDPA
+
+**ขนส่ง** ผ่าน adapter layer ใน `backend/app/fulfillment/` เปลี่ยนเจ้าด้วย env
+`FULFILLMENT_PROVIDER` (ตอนนี้ `manual` = แอดมินกรอกเลขพัสดุเอง)
+
+ตัวแปร env ที่เกี่ยวข้อง: `PROMPTPAY_TARGET`, `SHOP_NAME`, `PAYMENT_WINDOW_MINUTES`,
+`BANK_WEBHOOK_SECRET`, `ADMIN_TOKEN`, `FULFILLMENT_PROVIDER`
+
 ## Development Priority
 
 - [x] Sprint 1 — Project setup, Database schema, Search UI
 - [x] Sprint 2 — Amazon crawler, 1688 crawler + daily snapshot job
-- [ ] Sprint 3 — Shopee Thailand checker
-- [ ] Sprint 4 — Favorite, Snapshot, History
-- [ ] Sprint 5 — Supplier finder
-- [ ] Sprint 6 — AI analysis
+- [x] Sprint 3 — ระบบขาย: ตรวจสลิป, ยอดโอนไม่ซ้ำ, ฐานข้อมูลลูกค้า, adapter ขนส่ง
+- [ ] Sprint 4 — Shopee Thailand checker
+- [ ] Sprint 5 — Favorite, Snapshot, History
+- [ ] Sprint 6 — Supplier finder
+- [ ] Sprint 7 — AI analysis
 
 ## Final Principle
 

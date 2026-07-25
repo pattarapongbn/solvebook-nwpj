@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
+from app.models import order as order_models  # noqa: F401  — ให้ create_all เห็นตารางฝั่งขาย
 from app.models.product import (
     Country,
     Marketplace,
