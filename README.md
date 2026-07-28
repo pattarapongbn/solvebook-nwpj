@@ -84,7 +84,7 @@ python -m app.crawlers.run --keywords-file ../crawl/keywords.txt --sources amazo
 
 หน้าร้านอยู่ที่ `/shop/` (ไฟล์อยู่ใน `frontend/public/shop/`) หลังร้านอยู่ที่
 `/admin/orders` และ `/admin/customers` — ทั้งหมด deploy พร้อมกันในโปรเจกต์ Vercel เดียว
-ดูขั้นตอนขึ้น production ที่ **[DEPLOY.md](DEPLOY.md)**
+ดูขั้นตอนขึ้น production ที่ **[DEPLOY.md](DEPLOY.md)** · คู่มือใช้งานประจำวันสำหรับคนดูแลร้านที่ **[OPERATIONS.md](OPERATIONS.md)**
 
 **ตรวจสลิปแบบไม่เสียค่าบริการ ทำ 2 ชั้นซ้อนกัน**
 
