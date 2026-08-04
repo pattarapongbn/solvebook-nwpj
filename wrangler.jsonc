@@ -3,9 +3,10 @@
   // Cloudflare รวม Pages เข้ากับ Workers แล้ว หน้า dashboard จึงพาไปทาง Workers
   // ซึ่งต้องมีไฟล์นี้ ไม่งั้น `npx wrangler deploy` หาไม่เจอว่าจะเอาอะไรขึ้น
   //
-  // Build command ที่ต้องตั้งใน dashboard: cd frontend && npm install && npm run build
+  // ตั้งชื่อตามรีโปเพราะ Cloudflare เติมชื่อนี้ให้เองในหน้า setup — จะได้ไม่ต้องแก้
+  // ชื่อ project กับชื่อในไฟล์นี้ต้องตรงกัน
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "scout-shop",
+  "name": "solvebook-nwpj",
   "compatibility_date": "2025-06-01",
   "assets": {
     "directory": "./frontend/out",

@@ -1,0 +1,8 @@
+{
+  "name": "solvebook-nwpj",
+  "private": true,
+  "scripts": {
+    "//": "มีไฟล์นี้เพื่อให้ Cloudflare ที่รัน `npm run build` จาก root ต่อไปยัง frontend ได้เอง — จะได้ไม่ต้องพิมพ์ build command ในหน้า dashboard",
+    "build": "cd frontend && npm install && npm run build"
+  }
+}
