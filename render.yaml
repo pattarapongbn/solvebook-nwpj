@@ -1,0 +1,35 @@
+# Blueprint สำหรับ Render — backend FastAPI ของร้าน
+#
+# region ต้องเป็น singapore ให้ตรงกับ Neon ไม่งั้นทุก query วิ่งข้ามทวีป
+# ค่า sync:false = ต้องไปกรอกเองใน Render Dashboard (ห้ามเก็บ secret ในรีโป)
+services:
+  - type: web
+    name: scout-api
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      # connection string ของ Neon (region Singapore)
+      - key: DATABASE_URL
+        sync: false
+      # โดเมนหน้าร้านบน Cloudflare Pages — คั่นด้วยจุลภาคถ้ามีหลายอัน
+      # ถ้าไม่ตั้ง เบราว์เซอร์จะบล็อกทุก request ข้ามโดเมน
+      - key: CORS_ORIGINS
+        sync: false
+      # โทเคนของหน้า /admin — ว่างไว้ = ใครก็เปิดดูข้อมูลลูกค้าได้ ห้ามปล่อยว่างบน production
+      - key: ADMIN_TOKEN
+        sync: false
+      # ความลับของ webhook แจ้งเงินเข้า
+      - key: BANK_WEBHOOK_SECRET
+        sync: false
+      # เบอร์พร้อมเพย์ หรือเลขประจำตัวผู้เสียภาษี 13 หลัก ที่ QR จะชี้ไป
+      - key: PROMPTPAY_TARGET
+        sync: false
+      - key: SHOP_NAME
+        sync: false

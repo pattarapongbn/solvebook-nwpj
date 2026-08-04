@@ -1,19 +1,14 @@
-import os
 from collections.abc import Generator
-from typing import Any
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
-# บน serverless (Vercel) ห้ามถือ connection pool ข้าม invocation — ใช้ NullPool
-# แล้วปล่อยให้ Supabase pooler (pgbouncer) จัดการ pooling ฝั่ง server แทน
-engine_kwargs: dict[str, Any] = (
-    {"poolclass": NullPool} if os.environ.get("VERCEL") else {"pool_pre_ping": True}
-)
-engine = create_engine(settings.database_url, **engine_kwargs)
+# บน Render เป็น process ที่รันค้างไว้ ถือ pool ได้ตามปกติ (ไม่เหมือน serverless เดิม)
+# แต่ Neon ตัด connection ที่ idle นาน ๆ ทิ้ง — pool_pre_ping จึงจำเป็น
+# ไม่งั้น query แรกหลัง service ตื่นจากหลับจะพังเพราะหยิบ connection ที่ตายแล้วมาใช้
+engine = create_engine(settings.database_url, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 

@@ -23,6 +23,3 @@ dist/
 *.log
 .playwright/
 *.tsbuildinfo
-
-# สำเนา backend ที่ prepare-vercel.mjs สร้างตอน build (ตัวจริงอยู่ที่ backend/app)
-frontend/api/_vendor/

@@ -18,10 +18,10 @@ Single user · Desktop first · Data first
 
 ```
 scout/
-├── frontend/               # Next.js app (Search UI, Admin orders/customers, /privacy)
-│   ├── api/index.py        # entry ของ FastAPI บน Vercel
+├── frontend/               # Next.js static export (Search UI, Admin orders/customers, /privacy)
 │   └── public/shop/        # หน้าสั่งซื้อของลูกค้า (static)
 ├── backend/                # FastAPI (API → Service → Repository → Database)
+├── render.yaml             # blueprint ของ backend บน Render
 └── docker-compose.yml
 ```
 
@@ -83,7 +83,8 @@ python -m app.crawlers.run --keywords-file ../crawl/keywords.txt --sources amazo
 ## ระบบขาย: ตรวจสลิป + ฐานข้อมูลลูกค้า
 
 หน้าร้านอยู่ที่ `/shop/` (ไฟล์อยู่ใน `frontend/public/shop/`) หลังร้านอยู่ที่
-`/admin/orders` และ `/admin/customers` — ทั้งหมด deploy พร้อมกันในโปรเจกต์ Vercel เดียว
+`/admin/orders` และ `/admin/customers` — ทั้งหมดเป็นไฟล์นิ่งที่ deploy พร้อมกันบน
+Cloudflare Pages ส่วน API อยู่คนละโดเมนบน Render (จึงต้องตั้ง `CORS_ORIGINS`)
 ดูขั้นตอนขึ้น production ที่ **[DEPLOY.md](DEPLOY.md)** · คู่มือใช้งานประจำวันสำหรับคนดูแลร้านที่ **[OPERATIONS.md](OPERATIONS.md)**
 
 **ตรวจสลิปแบบไม่เสียค่าบริการ ทำ 2 ชั้นซ้อนกัน**
@@ -112,7 +113,8 @@ export CSV ได้จาก `/admin/customers` และมี soft delete ต
 ค่อยย้ายไป object storage แล้วเก็บที่อยู่ไฟล์ลง `payment_slips.image_url` แทน
 
 ตัวแปร env ที่เกี่ยวข้อง: `PROMPTPAY_TARGET`, `SHOP_NAME`, `PAYMENT_WINDOW_MINUTES`,
-`BANK_WEBHOOK_SECRET`, `ADMIN_TOKEN`, `FULFILLMENT_PROVIDER`, `AUTO_CREATE_TABLES`
+`BANK_WEBHOOK_SECRET`, `ADMIN_TOKEN`, `FULFILLMENT_PROVIDER`, `AUTO_CREATE_TABLES`,
+`CORS_ORIGINS`
 
 ## Development Priority
 

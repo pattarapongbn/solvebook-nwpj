@@ -75,7 +75,7 @@ function ProductCard({ item }: { item: ProductListItem }) {
         )}
         <div className="min-w-0 flex-1">
           <Link
-            href={`/products/${item.id}`}
+            href={`/products/detail?id=${item.id}`}
             className="line-clamp-2 text-sm font-medium leading-snug"
           >
             {item.name}
@@ -134,7 +134,7 @@ export function ResultsTable({ items }: ResultsTableProps) {
         header: "Product",
         cell: (info) => (
           <Link
-            href={`/products/${info.row.original.id}`}
+            href={`/products/detail?id=${info.row.original.id}`}
             className="font-medium hover:underline"
           >
             {info.getValue()}

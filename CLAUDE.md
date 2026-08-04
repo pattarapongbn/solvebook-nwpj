@@ -7,7 +7,7 @@ Internal research tool (single user) สำหรับหาสินค้า�
 - `frontend/` — Next.js (App Router) + TypeScript strict + Tailwind + shadcn/ui-style components
 - `backend/` — FastAPI, layered: `api/routes` → `services` → `repositories` → SQLAlchemy models
 - `frontend/public/shop/` — หน้าสั่งซื้อของลูกค้า (static + jsQR) เสิร์ฟที่ `/shop/` ต่อ backend ผ่าน `window.SCOUT_API_BASE`
-- `frontend/api/index.py` — entry ของ FastAPI บน Vercel · `prebuild` คัดลอก `backend/app` มาให้ (ห้ามแก้ที่สำเนา)
+- หน้าเว็บ deploy เป็น static export (`output: "export"` → `frontend/out/`) บน Cloudflare Pages · backend อยู่คนละโดเมนบน Render
 
 ## Hard Rules
 
@@ -31,4 +31,6 @@ Internal research tool (single user) สำหรับหาสินค้า�
 - Daily job: GitHub Actions `.github/workflows/daily-crawl.yml` (secret `DATABASE_URL`)
 - Dev DB แบบไม่มี Postgres: `DATABASE_URL=sqlite:///./scout.db`
 - Storefront: `cd frontend/public/shop && python3 -m http.server 8080`
-- Deploy: ดู `DEPLOY.md` — Vercel root directory = `frontend`
+- Deploy: ดู `DEPLOY.md` — Cloudflare Pages (root `frontend`, output `out`) + Render (`render.yaml`) + Neon
+- คนละโดเมนแล้ว: ทุก route ใหม่ต้องเรียก API ผ่าน `NEXT_PUBLIC_API_URL` / `window.SCOUT_API_BASE` เท่านั้น ห้ามใช้ path แบบ relative
+- ห้ามใช้ dynamic route segment (`[id]`) — static export สร้างไฟล์ได้เฉพาะ path ที่รู้ตอน build ให้รับค่าทาง query string แทน

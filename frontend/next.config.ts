@@ -1,16 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // static export ล้วน — ไม่มี server ฝั่ง Next.js อีกแล้ว
+  // ทุกหน้ากลายเป็นไฟล์นิ่งใน out/ แล้วเสิร์ฟจาก Cloudflare Pages
+  // API ทุกเส้นวิ่งข้ามโดเมนไปหา backend บน Render ผ่าน NEXT_PUBLIC_API_URL
+  output: "export",
   images: {
+    // export ไม่มีตัว optimize รูประหว่างรัน — ต้องปิด
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "**" }, // สินค้า mock/crawl มาจากหลาย CDN
     ],
-  },
-  // บน Vercel (single project: Next.js + FastAPI) ให้ /api/v1/* วิ่งเข้า Python
-  // serverless function ที่ api/index.py — function เห็น path เดิมของ request
-  // จึง match route /api/v1/... ใน FastAPI ได้ตรง ๆ (dev ใช้ NEXT_PUBLIC_API_URL แทน)
-  async rewrites() {
-    return [{ source: "/api/v1/:path*", destination: "/api/index" }];
   },
 };
 

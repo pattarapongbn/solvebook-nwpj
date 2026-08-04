@@ -3,8 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -23,15 +23,28 @@ import { cn, formatNumber, formatPrice, formatTHB } from "@/lib/utils";
 const TABS = ["Overview", "Price History", "Sales History", "Shopee Thailand"] as const;
 type Tab = (typeof TABS)[number];
 
+// static export สร้างไฟล์ได้เฉพาะ path ที่รู้ตอน build จึงรับ id ทาง query string
+// (/products/detail?id=123) แทน dynamic segment ที่ต้องรู้รายการ id ล่วงหน้า
+// useSearchParams ต้องอยู่ใต้ Suspense ไม่งั้น next build ฟ้อง
 export default function ProductDetailPage() {
-  const params = useParams<{ id: string }>();
-  const productId = Number(params.id);
+  return (
+    <Suspense
+      fallback={<Card className="py-12 text-center text-sm text-gray-500">กำลังโหลด...</Card>}
+    >
+      <ProductDetailView />
+    </Suspense>
+  );
+}
+
+function ProductDetailView() {
+  const searchParams = useSearchParams();
+  const productId = Number(searchParams.get("id"));
   const [tab, setTab] = useState<Tab>("Overview");
 
   const query = useQuery({
     queryKey: ["product", productId],
     queryFn: () => getProductDetail(productId),
-    enabled: Number.isFinite(productId),
+    enabled: Number.isFinite(productId) && productId > 0,
   });
 
   if (query.isLoading) {
