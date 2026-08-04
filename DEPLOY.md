@@ -58,36 +58,37 @@ region/plan/build/start ให้เอง เหลือแค่กรอก 
 ทุกบาทจะวิ่งเข้าเบอร์นี้ · เบอร์ที่โชว์ใต้ QR ในหน้าร้านยัง hardcode อยู่ใน
 `frontend/public/shop/index.html` ถ้าเปลี่ยนบัญชีต้องแก้ที่นั่นด้วย
 
-เสร็จแล้วจดโดเมนที่ Render ให้มา (เช่น `https://scout-api.onrender.com`) ไปใช้ขั้นถัดไป
+เสร็จแล้วจดโดเมนที่ Render ให้มา (เช่น `https://scout-api-ncqo.onrender.com`) ไปใช้ขั้นถัดไป
 
-## 3. หน้าเว็บ — Cloudflare Pages
+## 3. หน้าเว็บ — Cloudflare
 
-Workers & Pages → Create → Pages → Connect to Git → เลือก repo นี้
+Workers & Pages → Create → Connect to Git → เลือก repo นี้
+
+Cloudflare รวม Pages เข้ากับ Workers แล้ว หน้า setup จึงขึ้นว่า "Configure your Worker
+project" และใช้ `npx wrangler deploy` — รีโปมี `wrangler.jsonc` ที่ root รองรับไว้แล้ว
+มันชี้ไป `frontend/out/` ที่ `next build` สร้าง (`output: "export"` ใน `next.config.ts`)
+ไม่ต้องใช้ `@cloudflare/next-on-pages`
 
 | ช่อง | ค่า |
 |---|---|
-| Production branch | `main` |
-| Framework preset | Next.js (Static HTML Export) |
-| Build command | `npm run build` |
-| Build output directory | `out` |
-| Root directory | `frontend` |
-
-`next.config.ts` ตั้ง `output: "export"` ไว้แล้ว build ได้ไฟล์นิ่งล้วนใน `frontend/out/`
-ไม่ต้องใช้ `@cloudflare/next-on-pages`
+| Project name | `scout-shop` (ต้องตรงกับ `name` ใน `wrangler.jsonc`) |
+| Branch | สาขาที่มีโค้ดร้าน |
+| Build command | `cd frontend && npm install && npm run build` |
+| Deploy command | `npx wrangler deploy` |
 
 Environment variables ของฝั่งนี้ (Settings → Environment variables, production):
 
 | ชื่อ | ค่า | จำเป็น |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | โดเมน Render เช่น `https://scout-api.onrender.com` | ✅ ถ้าไม่ใช่ค่า default |
+| `NEXT_PUBLIC_API_URL` | โดเมน Render เช่น `https://scout-api-ncqo.onrender.com` | ✅ ถ้าไม่ใช่ค่า default |
 | `NEXT_PUBLIC_SHOP_NAME` | ชื่อร้านที่โชว์ในหน้า `/privacy` | แนะนำ |
 | `NEXT_PUBLIC_SHOP_CONTACT` | อีเมล/เบอร์ที่ลูกค้าติดต่อเรื่องข้อมูลได้ (หน้า `/privacy`) | แนะนำ |
 
 **ที่อยู่ของ API ตั้งอยู่จุดเดียวสองที่ ตามฝั่งที่ใช้:**
 
 - ฝั่ง Next.js (หลังร้าน) — env `NEXT_PUBLIC_API_URL` ค่า default อยู่ใน
-  `frontend/.env.production` ถ้าโดเมน Render ไม่ใช่ `scout-api.onrender.com`
-  ให้ override ใน Cloudflare Pages → Settings → Environment variables
+  `frontend/.env.production` ถ้าย้าย backend แก้ที่นั่น หรือ override ใน
+  Cloudflare → Settings → Variables
 - ฝั่งหน้าร้าน (`/shop/`) — `window.SCOUT_API_BASE` บนสุดของบล็อกสคริปต์ใน
   `frontend/public/shop/index.html` (หน้าร้านเป็น HTML ล้วน อ่าน env ตอน build ไม่ได้)
 
@@ -136,7 +137,7 @@ Cloudflare Registrar (ขายราคาทุน) แล้วต่อเ�
 เปิดแจ้งเตือนเงินเข้าทางอีเมลในแอปธนาคาร → Zapier อ่านอีเมล → ยิง POST มาที่
 
 ```
-POST https://scout-api.onrender.com/api/v1/payments/bank-notify
+POST https://scout-api-ncqo.onrender.com/api/v1/payments/bank-notify
 Header: X-Webhook-Secret: <BANK_WEBHOOK_SECRET>
 Body:   {"amount": 890.37, "raw_message": "..."}
 ```
