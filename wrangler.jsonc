@@ -1,0 +1,15 @@
+{
+  // ตั้งค่าให้ Cloudflare เสิร์ฟไฟล์นิ่งที่ next build (output: "export") สร้างไว้
+  // Cloudflare รวม Pages เข้ากับ Workers แล้ว หน้า dashboard จึงพาไปทาง Workers
+  // ซึ่งต้องมีไฟล์นี้ ไม่งั้น `npx wrangler deploy` หาไม่เจอว่าจะเอาอะไรขึ้น
+  //
+  // Build command ที่ต้องตั้งใน dashboard: cd frontend && npm install && npm run build
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scout-shop",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "./frontend/out",
+    // ไม่มีไฟล์ตรง path ไหน ให้ตอบหน้า 404 ที่ next สร้างไว้
+    "not_found_handling": "404-page"
+  }
+}
