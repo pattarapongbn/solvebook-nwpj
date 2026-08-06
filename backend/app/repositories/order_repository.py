@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session, selectinload
 
-from app.models.order import Order, PaymentStatus, UnmatchedPayment
+from app.models.order import PAYMENT_METHOD_COD, Order, PaymentStatus, UnmatchedPayment
 
 # สถานะที่ยัง "รอเงินเข้า" — ยอด amount_due ของออเดอร์กลุ่มนี้ห้ามซ้ำกัน
 PENDING_STATUSES = (PaymentStatus.AWAITING_PAYMENT, PaymentStatus.SLIP_SUBMITTED)
@@ -44,16 +44,24 @@ class OrderRepository:
         )
 
     def pending_amounts(self) -> set[Decimal]:
+        # ออเดอร์เก็บเงินปลายทางไม่ได้จองสลอตเศษสตางค์ (ยอดเป็นจำนวนเต็ม ซ้ำกันได้)
+        # ถ้านับรวมเข้ามา ยอดเต็มบาทจะถูกมองว่าไม่ว่าง และออเดอร์ปลายทางหลายใบ
+        # ราคาเดียวกันจะสร้างไม่ได้ตั้งแต่ใบที่สอง
         rows = self.db.execute(
-            select(Order.amount_due).where(Order.payment_status.in_(PENDING_STATUSES))
+            select(Order.amount_due)
+            .where(Order.payment_status.in_(PENDING_STATUSES))
+            .where(Order.payment_method != PAYMENT_METHOD_COD)
         ).scalars()
         return {Decimal(amount) for amount in rows}
 
     def find_pending_by_amount(self, amount: Decimal) -> list[Order]:
+        # เงินที่ธนาคารแจ้งเข้ามาต้องจับคู่กับออเดอร์ที่ "โอน" เท่านั้น
+        # ปลายทางไม่มีเงินโอนเข้าบัญชี ถ้าไม่กันไว้จะถูกมาร์คว่าจ่ายแล้วทั้งที่ยังไม่ได้เก็บเงิน
         return list(
             self.db.execute(
                 select(Order)
                 .where(Order.payment_status.in_(PENDING_STATUSES))
+                .where(Order.payment_method != PAYMENT_METHOD_COD)
                 .where(Order.amount_due == amount)
                 .order_by(Order.created_at.asc())
             ).scalars()

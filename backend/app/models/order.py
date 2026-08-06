@@ -32,6 +32,12 @@ def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
+# วิธีจ่ายเงิน — เก็บเป็นข้อความธรรมดา ไม่ใช่ Enum ของฐานข้อมูล เพราะคอลัมน์นี้มีอยู่
+# ก่อนแล้วเป็น String(32) เพิ่มค่าใหม่จึงไม่ต้องแตะ schema ของตารางที่ใช้งานจริงอยู่
+PAYMENT_METHOD_TRANSFER = "promptpay_transfer"
+PAYMENT_METHOD_COD = "cod"
+
+
 class PaymentStatus(str, enum.Enum):
     AWAITING_PAYMENT = "awaiting_payment"
     SLIP_SUBMITTED = "slip_submitted"

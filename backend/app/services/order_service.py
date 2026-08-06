@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.order import (
+    PAYMENT_METHOD_COD,
     Address,
     AddressSource,
     Customer,
@@ -46,7 +47,10 @@ class OrderService:
     def create_order(self, payload: OrderCreate) -> OrderPayment:
         now = datetime.now(timezone.utc)
         amount_base = (payload.unit_price * payload.quantity).quantize(Decimal("0.01"))
-        amount_due = self._allocate_amount_due(amount_base)
+        is_cod = payload.payment_method == PAYMENT_METHOD_COD
+        # เก็บเงินปลายทางไม่มีเงินโอนเข้าให้จับคู่ จึงไม่ต้องเติมเศษสตางค์
+        # และไม่ควรจองสลอตเศษสตางค์ทิ้งไว้ ให้ออเดอร์ที่โอนจริงได้ใช้เต็ม 99 ค่า
+        amount_due = amount_base if is_cod else self._allocate_amount_due(amount_base)
 
         customer = self._get_or_create_customer(payload, now)
         address = self._get_or_create_address(customer, payload.address)
@@ -61,8 +65,12 @@ class OrderService:
             unit_price=payload.unit_price,
             amount_base=amount_base,
             amount_due=amount_due,
+            payment_method=payload.payment_method,
             payment_status=PaymentStatus.AWAITING_PAYMENT,
-            payment_expires_at=now + timedelta(minutes=settings.payment_window_minutes),
+            # ปลายทางไม่มีนาฬิกาจับเวลา ลูกค้าจ่ายตอนพัสดุถึงบ้าน
+            payment_expires_at=(
+                None if is_cod else now + timedelta(minutes=settings.payment_window_minutes)
+            ),
             consent_at=now if payload.consent else None,
         )
         self.orders.add(order)
@@ -72,15 +80,23 @@ class OrderService:
         return self.payment_info(order)
 
     def payment_info(self, order: Order) -> OrderPayment:
+        # ปลายทางไม่ต้องมี QR — ส่งค่าว่างไปเลย หน้าร้านจะได้ไม่มีทางเผลอโชว์ QR
+        # ให้ลูกค้าที่เลือกจ่ายปลายทาง แล้วเก็บเงินซ้ำสองรอบ
+        is_cod = order.payment_method == PAYMENT_METHOD_COD
         return OrderPayment(
             order_code=order.order_code,
             amount_base=Decimal(order.amount_base),
             amount_due=Decimal(order.amount_due),
-            promptpay_payload=promptpay.build_payload(
-                settings.promptpay_target, Decimal(order.amount_due)
+            promptpay_payload=(
+                ""
+                if is_cod
+                else promptpay.build_payload(
+                    settings.promptpay_target, Decimal(order.amount_due)
+                )
             ),
-            promptpay_target=settings.promptpay_target,
+            promptpay_target="" if is_cod else settings.promptpay_target,
             payment_expires_at=order.payment_expires_at,
+            payment_method=order.payment_method,
         )
 
     def get_payment_info(self, order_code: str) -> OrderPayment:

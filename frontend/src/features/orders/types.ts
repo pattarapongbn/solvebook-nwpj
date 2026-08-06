@@ -9,6 +9,8 @@ export type FulfillmentStatus = "pending" | "ready_to_ship" | "shipped" | "cance
 
 export type SlipCheckStatus = "qr_ok" | "duplicate" | "qr_unreadable";
 
+export type PaymentMethod = "promptpay_transfer" | "cod";
+
 export interface ShippingSnapshot {
   recipient_name: string;
   recipient_phone: string;
@@ -44,6 +46,7 @@ export interface Order {
   quantity: number;
   amount_base: string;
   amount_due: string;
+  payment_method: PaymentMethod;
   payment_status: PaymentStatus;
   fulfillment_status: FulfillmentStatus;
   tracking_no: string | null;

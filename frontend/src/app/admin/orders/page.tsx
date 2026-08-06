@@ -165,7 +165,7 @@ export default function AdminOrdersPage() {
             <TableRow>
               <TableHead>ออเดอร์</TableHead>
               <TableHead>ลูกค้า</TableHead>
-              <TableHead>ยอดที่ต้องโอน</TableHead>
+              <TableHead>ยอดที่ต้องเก็บ</TableHead>
               <TableHead>สลิป</TableHead>
               <TableHead>สถานะ</TableHead>
               <TableHead>จัดส่ง</TableHead>
@@ -241,6 +241,14 @@ function OrderRow({
       </TableCell>
       <TableCell>
         <div className="font-semibold">{formatBaht(order.amount_due)}</div>
+        {/* ปลายทางต้องเห็นชัด ไม่งั้นแอดมินจะนั่งรอเงินโอนที่ไม่มีวันเข้า */}
+        {order.payment_method === "cod" ? (
+          <Badge className="mt-1 border-amber-300 bg-amber-50 text-amber-900">
+            เก็บเงินปลายทาง
+          </Badge>
+        ) : (
+          <div className="text-xs text-gray-500">โอนพร้อมเพย์</div>
+        )}
         <div className="text-xs text-gray-500">ราคาสินค้า {formatBaht(order.amount_base)}</div>
       </TableCell>
       <TableCell>

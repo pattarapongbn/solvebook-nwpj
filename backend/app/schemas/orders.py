@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -29,6 +30,8 @@ class OrderCreate(BaseModel):
     quantity: int = Field(default=1, ge=1, le=99)
     unit_price: Decimal = Field(gt=0)
     address: AddressInput
+    # โอนเข้าพร้อมเพย์ หรือเก็บเงินปลายทาง — ค่าเริ่มต้นคือโอน เพื่อให้ของเดิมทำงานเหมือนเดิม
+    payment_method: Literal["promptpay_transfer", "cod"] = "promptpay_transfer"
     # PDPA: หน้าเว็บต้องให้ลูกค้ากดยินยอมก่อนส่งข้อมูล
     consent: bool = True
 
@@ -42,6 +45,7 @@ class OrderPayment(BaseModel):
     promptpay_payload: str
     promptpay_target: str
     payment_expires_at: datetime | None
+    payment_method: str
 
 
 class SlipSubmit(BaseModel):
@@ -86,6 +90,7 @@ class OrderItem(BaseModel):
     quantity: int
     amount_base: Decimal
     amount_due: Decimal
+    payment_method: str
     payment_status: PaymentStatus
     fulfillment_status: FulfillmentStatus
     tracking_no: str | None

@@ -95,6 +95,13 @@ textarea.input{resize:vertical;min-height:62px;line-height:1.5}
 .cta:active{transform:scale(.985)}
 .cta:disabled{background:#B9B3A2;box-shadow:none;cursor:not-allowed}
 .cta .sub{display:block;font-family:'Noto Sans Thai';font-size:13px;font-weight:400;opacity:.94;margin-top:2px}
+/* เลือกวิธีชำระเงิน — ปุ่มใหญ่กดง่ายด้วยนิ้วโป้ง เพราะเกือบทุกคนมาจากแอดบนมือถือ */
+.paysel{margin:0 0 18px}
+.paysel-title{font-family:'Mitr';font-size:16px;margin-bottom:8px}
+.payopt{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:13px 15px;margin-bottom:9px;cursor:pointer;font:inherit;color:inherit}
+.payopt.on{border-color:var(--gold-dark);background:#FFFBF2;box-shadow:0 0 0 2px rgba(180,83,9,.12)}
+.payopt .po-t{display:block;font-family:'Mitr';font-size:16px}
+.payopt .po-d{display:block;color:var(--ink-soft);font-size:13px;margin-top:2px;line-height:1.45}
 .warn-note{background:#FFF7ED;border:1px solid #E7C9A0;border-left:4px solid #B45309;border-radius:10px;padding:12px 14px;font-size:13px;color:#4A3410;line-height:1.6;margin-bottom:18px}
 .warn-note b{display:block;margin-bottom:4px;font-size:13.5px}
 
@@ -234,14 +241,26 @@ textarea.input{resize:vertical;min-height:62px;line-height:1.5}
       <div class="sum-row"><span class="sname">Kirkland Joint Formula<small>ซื้อ 1 แถม 1 (ได้ 2 ขวด)</small></span>
         <div class="qty"><button onclick="chgQty(-1)">−</button><span id="qty">1</span><button onclick="chgQty(1)">+</button></div></div>
       <div class="sum-row"><span>ค่าจัดส่ง</span><span style="color:var(--ok);font-weight:700">ฟรี</span></div>
-      <div class="sum-row total"><span class="l">ยอดที่ต้องโอน</span><span class="v" id="sum-total">890฿</span></div>
+      <div class="sum-row total"><span class="l" id="sum-label">ยอดที่ต้องโอน</span><span class="v" id="sum-total">890฿</span></div>
+    </div>
+
+    <div class="paysel">
+      <div class="paysel-title">เลือกวิธีชำระเงิน</div>
+      <button type="button" class="payopt on" id="opt-transfer" onclick="setMethod('promptpay_transfer')">
+        <span class="po-t">โอนผ่าน QR พร้อมเพย์</span>
+        <span class="po-d">โอนตอนนี้ แล้วแนบสลิป · ร้านจัดส่งทันทีที่ตรวจสลิปผ่าน</span>
+      </button>
+      <button type="button" class="payopt" id="opt-cod" onclick="setMethod('cod')">
+        <span class="po-t">เก็บเงินปลายทาง</span>
+        <span class="po-d">ไม่ต้องโอนตอนนี้ จ่ายเงินสดกับคนส่งของตอนรับพัสดุ</span>
+      </button>
     </div>
 
     <div class="warn-note"><b>คำเตือน (กรุณาอ่านก่อนสั่งซื้อ)</b>
       ผลิตภัณฑ์นี้ไม่มีผลในการป้องกันหรือรักษาโรค · เด็กและสตรีมีครรภ์ไม่ควรรับประทาน · ผู้ที่แพ้อาหารทะเลห้ามรับประทาน · หากมีโรคประจำตัวหรือกำลังใช้ยา ควรปรึกษาแพทย์ก่อนรับประทาน · อ่านฉลากก่อนใช้ทุกครั้ง · ผลลัพธ์แตกต่างกันในแต่ละบุคคล</div>
 
     <div class="pdpa">เราเก็บชื่อ เบอร์โทร และที่อยู่ของคุณเพื่อจัดส่งสินค้าและติดต่อเรื่องออเดอร์เท่านั้น ไม่ส่งต่อให้บุคคลอื่นนอกจากบริษัทขนส่ง · ขอแก้ไขหรือลบข้อมูลได้ตลอดเวลาที่ <a href="/privacy">นโยบายความเป็นส่วนตัว</a> · การกดสั่งซื้อถือว่าคุณยินยอมให้เก็บข้อมูลตามนี้</div>
-    <button class="cta" onclick="goPay()">ถัดไป — ชำระเงิน<span class="sub">รับ QR พร้อมเพย์สำหรับโอน</span></button>
+    <button class="cta" id="cta-pay" onclick="goPay()"><span id="cta-main">ถัดไป — ชำระเงิน</span><span class="sub" id="cta-sub">รับ QR พร้อมเพย์สำหรับโอน</span></button>
     <div style="height:24px"></div>
   </div>
 </div>
@@ -305,13 +324,13 @@ textarea.input{resize:vertical;min-height:62px;line-height:1.5}
 <div class="screen" id="screen4">
   <div class="wrap" style="padding-top:18px">
     <div class="steps"><div class="stp">1. ที่อยู่</div><div class="stp">2. ชำระเงิน</div><div class="stp on">3. เสร็จสิ้น</div></div>
-    <div class="confirm-hero"><div class="check">✓</div><h2>แจ้งชำระเงินแล้ว</h2><p>ร้านกำลังตรวจสอบสลิป และจะจัดส่งให้เร็วที่สุด</p></div>
+    <div class="confirm-hero"><div class="check">✓</div><h2 id="done-title">แจ้งชำระเงินแล้ว</h2><p id="done-sub">ร้านกำลังตรวจสอบสลิป และจะจัดส่งให้เร็วที่สุด</p></div>
     <div class="label-card">
-      <div class="label-head"><span>ใบปะหน้าพัสดุ</span><span class="pay-tag">ชำระแล้ว รอตรวจสอบ</span></div>
+      <div class="label-head"><span>ใบปะหน้าพัสดุ</span><span class="pay-tag" id="pay-tag">ชำระแล้ว รอตรวจสอบ</span></div>
       <div class="label-body"><div class="lcode" id="c-code"></div><div class="lname" id="c-name">–</div><div class="lphone" id="c-phone">–</div><div class="laddr" id="c-addr">–</div><div class="lnote" id="c-note" style="display:none"></div></div>
-      <div class="label-foot"><span class="l">ยอดที่โอน</span><span class="amt" id="c-amt">890฿</span></div>
+      <div class="label-foot"><span class="l" id="c-amt-label">ยอดที่โอน</span><span class="amt" id="c-amt">890฿</span></div>
     </div>
-    <p class="note">ข้อมูลชุดนี้คือสิ่งที่ระบบส่งเข้าหลังบ้าน<br>พร้อมสลิปสำหรับตรวจสอบและออกเลขพัสดุ</p>
+    <p class="note" id="done-note">ข้อมูลชุดนี้คือสิ่งที่ระบบส่งเข้าหลังบ้าน<br>พร้อมสลิปสำหรับตรวจสอบและออกเลขพัสดุ</p>
     <button class="back" style="margin:18px auto 24px;justify-content:center;width:100%" onclick="restart()">↻ สั่งอีกครั้ง</button>
   </div>
 </div>
@@ -2699,8 +2718,23 @@ const store={
   }
 };
 
-let state={qty:1,price:PRICE,order:null,payment:null,slip:null,deadline:null,offline:false};
+const METHOD_TRANSFER='promptpay_transfer', METHOD_COD='cod';
+let state={qty:1,price:PRICE,order:null,payment:null,slip:null,deadline:null,offline:false,method:METHOD_TRANSFER};
 let lastMatches=[], timerId=null;
+
+/* ---------- วิธีชำระเงิน ---------- */
+function isCod(){ return state.method===METHOD_COD; }
+function setMethod(m){
+  state.method=m;
+  const cod=isCod();
+  document.getElementById('opt-transfer').classList.toggle('on',!cod);
+  document.getElementById('opt-cod').classList.toggle('on',cod);
+  document.getElementById('sum-label').textContent=cod?'ยอดเก็บปลายทาง':'ยอดที่ต้องโอน';
+  document.getElementById('cta-main').textContent=cod?'ยืนยันคำสั่งซื้อ':'ถัดไป — ชำระเงิน';
+  document.getElementById('cta-sub').textContent=cod
+    ?'จ่ายเงินสดกับคนส่งของตอนรับพัสดุ'
+    :'รับ QR พร้อมเพย์สำหรับโอน';
+}
 
 /* ---------- api ---------- */
 async function api(path,options){
@@ -2861,10 +2895,20 @@ async function goPay(){
     // backend ไม่ตอบ — ยังให้ลูกค้าโอนได้ แต่ยอดจะไม่ได้จองสลอตเศษสตางค์ไว้
     console.warn('[order] fallback to offline mode:',e.message);
     state.offline=true;
-    const due=state.qty*state.price+(1+Math.floor(Math.random()*99))/100;
-    state.payment={order_code:null,amount_base:state.qty*state.price,amount_due:due.toFixed(2),
-      promptpay_payload:promptPayPayload(PROMPTPAY,due),payment_expires_at:null};
+    const base=state.qty*state.price;
+    // ปลายทางไม่ต้องเติมเศษสตางค์ ยอดเป็นราคาเต็มพอดี และไม่ต้องมี QR
+    const due=isCod()?base:base+(1+Math.floor(Math.random()*99))/100;
+    state.payment={order_code:null,amount_base:base,amount_due:due.toFixed(2),
+      promptpay_payload:isCod()?'':promptPayPayload(PROMPTPAY,due),payment_expires_at:null};
   }finally{ btn.disabled=false; }
+
+  if(isCod()){
+    // เก็บเงินปลายทาง — ไม่มีอะไรให้โอนและไม่มีสลิปให้แนบ ข้ามหน้าจ่ายเงินไปเลย
+    // ไม่ต้อง persist เพราะไม่มีออเดอร์ค้างให้กลับมาทำต่อ
+    await store.del(KEY);
+    showDone();
+    return;
+  }
 
   state.deadline=state.payment.payment_expires_at?
     new Date(state.payment.payment_expires_at).getTime():Date.now()+WINDOW_MIN*60*1000;
@@ -2879,6 +2923,7 @@ function createOrder(){
     address:{recipient_name:o.name, recipient_phone:o.phone, address_line:o.house,
       tambon:o.tambon, amphoe:o.amphoe, province:o.province, zipcode:o.zipcode,
       delivery_note:o.note||null},
+    payment_method:state.method,
     consent:true
   }});
 }
@@ -3058,6 +3103,8 @@ async function resume(){
   if(!d||!d.order||!d.payment) return;
   state.order=d.order; state.payment=d.payment; state.slip=d.slip||null;
   state.qty=d.qty||1; state.offline=!!d.offline;
+  // มีแต่ออเดอร์ทางโอนที่ถูกเก็บไว้ให้กลับมาทำต่อ ปลายทางจบตั้งแต่กดยืนยัน
+  state.method=METHOD_TRANSFER; setMethod(METHOD_TRANSFER);
   state.deadline=d.deadline||(Date.now()+WINDOW_MIN*60*1000);
 
   if(state.payment.order_code){
@@ -3096,23 +3143,42 @@ async function confirmPay(){
     document.getElementById('slip-preview').scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
-  const o=state.order;
+  await store.del(KEY);
+  showDone();
+}
+
+/* ---------- หน้าจบ ----------
+   ใช้ร่วมกันทั้งทางโอนและทางเก็บเงินปลายทาง เปลี่ยนแค่ข้อความให้ตรงกับสิ่งที่
+   ลูกค้าต้องทำต่อ — คนจ่ายปลายทางต้องรู้ว่าต้องเตรียมเงินสดเท่าไหร่ */
+function showDone(){
+  const cod=isCod(), o=state.order, amt=amountDue().toFixed(2);
+  document.getElementById('done-title').textContent=cod?'รับออเดอร์แล้ว':'แจ้งชำระเงินแล้ว';
+  document.getElementById('done-sub').textContent=cod
+    ?('เตรียมเงินสด '+amt+'฿ ไว้จ่ายกับคนส่งของตอนรับพัสดุ')
+    :'ร้านกำลังตรวจสอบสลิป และจะจัดส่งให้เร็วที่สุด';
+  document.getElementById('pay-tag').textContent=cod?'เก็บเงินปลายทาง':'ชำระแล้ว รอตรวจสอบ';
+  document.getElementById('c-amt-label').textContent=cod?'เก็บปลายทาง':'ยอดที่โอน';
+  document.getElementById('done-note').innerHTML=cod
+    ?'ร้านจะจัดส่งและแจ้งเลขพัสดุให้<br>ชำระเงินสดกับคนส่งของเมื่อได้รับสินค้า'
+    :'ข้อมูลชุดนี้คือสิ่งที่ระบบส่งเข้าหลังบ้าน<br>พร้อมสลิปสำหรับตรวจสอบและออกเลขพัสดุ';
+
   document.getElementById('c-code').textContent=state.payment.order_code?('รหัสออเดอร์ '+state.payment.order_code):'';
   document.getElementById('c-name').textContent=o.name;
   document.getElementById('c-phone').textContent='โทร. '+o.phone;
   document.getElementById('c-addr').textContent=o.house+' ต.'+o.tambon+' อ.'+o.amphoe+' จ.'+o.province+' '+o.zipcode;
   const cn=document.getElementById('c-note');
   if(o.note){cn.textContent=o.note;cn.style.display='block';}else{cn.style.display='none';}
-  document.getElementById('c-amt').textContent=amountDue().toFixed(2)+'฿';
+  document.getElementById('c-amt').textContent=amt+'฿';
+
   if(timerId) clearInterval(timerId);
-  // แนบสลิปแล้วกดยืนยัน — สัญญาณ "ซื้อ" ที่ใกล้ความจริงที่สุดที่หน้าร้านรู้ได้
-  // (เงินเข้าจริงหรือยังต้องรอแอดมินตรวจ แต่รอไม่ได้ Meta ต้องได้สัญญาณตอนนี้)
+  // สัญญาณ "ซื้อ" ที่ใกล้ความจริงที่สุดที่หน้าร้านรู้ได้ — ทางโอนคือแนบสลิปแล้ว
+  // ทางปลายทางคือยืนยันออเดอร์แล้ว เงินจริงเข้าเมื่อไหร่ต้องรอหลังบ้านทั้งคู่
   track('Purchase',{value:amountDue(),currency:'THB',content_name:PRODUCT_NAME});
-  await store.del(KEY);
   goScreen(4);
 }
 async function restart(){
-  state={qty:1,price:PRICE,order:null,payment:null,slip:null,deadline:null,offline:false};
+  state={qty:1,price:PRICE,order:null,payment:null,slip:null,deadline:null,offline:false,method:METHOD_TRANSFER};
+  setMethod(METHOD_TRANSFER);
   ['f-name','f-phone','f-house','f-search','f-note','a-tambon','a-amphoe','a-province','a-zip'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('addr-card').classList.remove('show');
   document.getElementById('house-field').style.display='none';

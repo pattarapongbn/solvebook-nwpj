@@ -281,3 +281,53 @@ def test_delete_missing_order_raises(db):
 
     with pytest.raises(OrderNotFound):
         OrderService(db).delete_order("SC999999-9999")
+
+
+def make_cod_order(phone: str = "0898887777", name: str = "สมหญิง รักดี") -> OrderCreate:
+    payload = make_order(phone=phone, name=name)
+    return payload.model_copy(update={"payment_method": "cod"})
+
+
+def test_cod_order_has_no_satang_and_no_deadline(db):
+    payment = OrderService(db).create_order(make_cod_order())
+
+    # ยอดต้องเป็นราคาเต็มพอดี ลูกค้าจ่ายเงินสดกับคนส่งของ เศษสตางค์ไม่มีประโยชน์
+    assert payment.amount_due == Decimal("890.00")
+    assert payment.payment_expires_at is None
+    # ไม่มี QR ให้เผลอโชว์
+    assert payment.promptpay_payload == ""
+    assert payment.payment_method == "cod"
+
+
+def test_two_cod_orders_can_share_the_same_amount(db):
+    service = OrderService(db)
+    first = service.create_order(make_cod_order(phone="0811111111"))
+    second = service.create_order(make_cod_order(phone="0822222222"))
+
+    # ปลายทางไม่ได้จองสลอต ยอดเท่ากันจึงต้องสร้างได้ทั้งคู่
+    assert first.amount_due == second.amount_due == Decimal("890.00")
+
+
+def test_cod_order_does_not_block_a_transfer_order_satang_slot(db):
+    service = OrderService(db)
+    service.create_order(make_cod_order(phone="0833333333"))
+
+    transfer = service.create_order(make_order(phone="0844444444"))
+
+    # ออเดอร์โอนยังต้องได้เศษสตางค์ปกติ ไม่โดนออเดอร์ปลายทางกินสลอต
+    assert transfer.amount_due != Decimal("890.00")
+    assert Decimal("890.00") < transfer.amount_due < Decimal("891.00")
+
+
+def test_bank_notification_never_matches_a_cod_order(db):
+    service = OrderService(db)
+    cod = service.create_order(make_cod_order(phone="0855555555"))
+
+    result = PaymentService(db).handle_bank_notification(
+        BankNotification(amount=Decimal("890.00"), raw_message="เงินเข้า 890.00")
+    )
+
+    # เงินโอนเข้าห้ามไปมาร์คออเดอร์ปลายทางว่าจ่ายแล้ว ทั้งที่ยังไม่ได้เก็บเงินจากลูกค้า
+    assert result.matched is False
+    order = db.execute(select(Order).where(Order.order_code == cod.order_code)).scalar_one()
+    assert order.payment_status is PaymentStatus.AWAITING_PAYMENT
