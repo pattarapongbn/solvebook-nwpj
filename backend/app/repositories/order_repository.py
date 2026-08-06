@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.order import Order, PaymentStatus, UnmatchedPayment
@@ -66,6 +66,20 @@ class OrderRepository:
         self.db.add(order)
         self.db.flush()
         return order
+
+    def delete(self, order: Order) -> None:
+        """ลบออเดอร์ถาวร พร้อมสลิปและรูปสลิปที่ผูกอยู่ (cascade ที่ relationship)
+
+        ต้องปลด unmatched_payments ที่เคยผูกกับออเดอร์นี้ก่อน ไม่งั้น FK ค้างแล้ว
+        DELETE ไม่ผ่าน — ตัวรายการเงินเข้ายังเก็บไว้ เพราะเงินเข้าบัญชีจริง
+        แค่กลับไปเป็น "ยังจับคู่ไม่ได้" ให้แอดมินผูกกับออเดอร์อื่นได้
+        """
+        self.db.execute(
+            update(UnmatchedPayment)
+            .where(UnmatchedPayment.resolved_order_id == order.id)
+            .values(resolved_order_id=None)
+        )
+        self.db.delete(order)
 
     def mark_paid(self, order: Order, paid_at: datetime) -> None:
         order.payment_status = PaymentStatus.PAID

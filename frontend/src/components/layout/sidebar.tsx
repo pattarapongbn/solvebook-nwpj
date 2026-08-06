@@ -1,15 +1,12 @@
 "use client";
 
-import { Heart, History, Receipt, Search, Settings, Users } from "lucide-react";
+import { Receipt, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/favorites", label: "Favorites", icon: Heart },
-  { href: "/history", label: "History", icon: History },
   { href: "/admin/orders", label: "Orders", icon: Receipt },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -26,10 +23,10 @@ export function Sidebar() {
       {/* Desktop: sidebar ซ้าย */}
       <aside className="hidden h-screen w-56 shrink-0 flex-col border-r border-gray-200 bg-white md:flex">
         <div className="px-5 py-5">
-          <Link href="/search" className="text-lg font-bold tracking-tight">
+          <Link href="/admin/orders" className="text-lg font-bold tracking-tight">
             Scout
           </Link>
-          <p className="mt-0.5 text-xs text-gray-500">Product Research</p>
+          <p className="mt-0.5 text-xs text-gray-500">หลังร้าน</p>
         </div>
         <nav className="flex flex-col gap-1 px-3">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {

@@ -18,7 +18,7 @@ Single user · Desktop first · Data first
 
 ```
 scout/
-├── frontend/               # Next.js static export (Search UI, Admin orders/customers, /privacy)
+├── frontend/               # Next.js static export (Admin orders/customers, /privacy)
 │   └── public/shop/        # หน้าสั่งซื้อของลูกค้า (static)
 ├── backend/                # FastAPI (API → Service → Repository → Database)
 ├── render.yaml             # blueprint ของ backend บน Render

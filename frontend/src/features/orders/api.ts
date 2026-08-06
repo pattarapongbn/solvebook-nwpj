@@ -32,6 +32,24 @@ export function markPaid(orderCode: string, note?: string): Promise<{ ok: boolea
   });
 }
 
+export function setPaymentStatus(
+  orderCode: string,
+  status: PaymentStatus,
+): Promise<{ ok: boolean }> {
+  return apiFetch<{ ok: boolean }>(`/admin/orders/${orderCode}/status`, {
+    method: "PATCH",
+    headers: adminHeaders(),
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function deleteOrder(orderCode: string): Promise<{ ok: boolean }> {
+  return apiFetch<{ ok: boolean }>(`/admin/orders/${orderCode}`, {
+    method: "DELETE",
+    headers: adminHeaders(),
+  });
+}
+
 export function setTracking(
   orderCode: string,
   trackingNo: string,

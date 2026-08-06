@@ -5,6 +5,8 @@ Internal research tool (single user) สำหรับหาสินค้า�
 ## Layout
 
 - `frontend/` — Next.js (App Router) + TypeScript strict + Tailwind + shadcn/ui-style components
+  หน้าเว็บเหลือเฉพาะฝั่งร้าน: `/admin/orders`, `/admin/customers`, `/settings`, `/privacy` + `/shop/`
+  (หน้า Search/Favorites/History ถูกถอดออกแล้ว — API ฝั่งวิจัยสินค้ายังอยู่ใน backend)
 - `backend/` — FastAPI, layered: `api/routes` → `services` → `repositories` → SQLAlchemy models
 - `frontend/public/shop/` — หน้าสั่งซื้อของลูกค้า (static + jsQR) เสิร์ฟที่ `/shop/` ต่อ backend ผ่าน `window.SCOUT_API_BASE`
 - หน้าเว็บ deploy เป็น static export (`output: "export"` → `frontend/out/`) บน Cloudflare Pages · backend อยู่คนละโดเมนบน Render

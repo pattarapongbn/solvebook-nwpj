@@ -100,6 +100,34 @@ class OrderService:
         self.orders.commit()
         return self.payment_info(order)
 
+    # ---------- admin ----------
+
+    def set_payment_status(self, order_code: str, status: PaymentStatus) -> None:
+        """แอดมินย้ายออเดอร์ไปสถานะที่ต้องการเอง เช่น ยกเลิก หรือแก้ที่กดผิด
+
+        ย้ายกลับมาเป็นสถานะที่ยังไม่จ่ายต้องล้าง paid_at ด้วย ไม่งั้นออเดอร์จะขัดกันเอง
+        (สถานะบอกว่ายังไม่จ่าย แต่มีเวลาที่จ่ายแล้วติดอยู่)
+        """
+        order = self.orders.get_by_code(order_code)
+        if order is None:
+            raise OrderNotFound
+        order.payment_status = status
+        order.paid_at = datetime.now(timezone.utc) if status is PaymentStatus.PAID else None
+        self.orders.commit()
+
+    def delete_order(self, order_code: str) -> None:
+        """ลบออเดอร์ถาวร — ไว้เก็บกวาดออเดอร์ทดสอบเป็นหลัก
+
+        ถอนยอดออกจากสถิติลูกค้าด้วย ไม่งั้นยอดสะสมค้างจากออเดอร์ที่ไม่มีแล้ว
+        และเศษสตางค์ของออเดอร์นี้จะว่างให้ออเดอร์ใหม่จองได้ทันที
+        """
+        order = self.orders.get_by_code(order_code)
+        if order is None:
+            raise OrderNotFound
+        self.customers.revoke_order(order.customer, Decimal(order.amount_due))
+        self.orders.delete(order)
+        self.orders.commit()
+
     # ---------- internals ----------
 
     def _allocate_amount_due(self, amount_base: Decimal) -> Decimal:

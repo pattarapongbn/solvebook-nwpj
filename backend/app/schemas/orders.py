@@ -113,6 +113,10 @@ class MarkPaidInput(BaseModel):
     note: str | None = Field(default=None, max_length=500)
 
 
+class PaymentStatusInput(BaseModel):
+    status: PaymentStatus
+
+
 class ResolveUnmatchedInput(BaseModel):
     order_code: str
 

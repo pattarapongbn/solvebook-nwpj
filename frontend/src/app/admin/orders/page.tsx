@@ -18,11 +18,13 @@ import {
 } from "@/components/ui/table";
 import { AdminTokenGate } from "@/features/orders/admin-token-gate";
 import {
+  deleteOrder,
   fetchSlipImage,
   listOrders,
   listUnmatchedPayments,
   markPaid,
   resolveUnmatchedPayment,
+  setPaymentStatus,
   setTracking,
 } from "@/features/orders/api";
 import {
@@ -40,6 +42,17 @@ const STATUS_OPTIONS: { value: PaymentStatus | ""; label: string }[] = [
   { value: "slip_submitted", label: "แนบสลิปแล้ว — รอยืนยัน" },
   { value: "awaiting_payment", label: "รอโอนเงิน" },
   { value: "paid", label: "เงินเข้าแล้ว" },
+  { value: "refunded", label: "คืนเงินแล้ว" },
+  { value: "cancelled", label: "ยกเลิก" },
+];
+
+// สถานะที่แอดมินย้ายเองได้จากในตาราง
+const EDITABLE_STATUSES: PaymentStatus[] = [
+  "awaiting_payment",
+  "slip_submitted",
+  "paid",
+  "refunded",
+  "cancelled",
 ];
 
 export default function AdminOrdersPage() {
@@ -72,6 +85,15 @@ export default function AdminOrdersPage() {
   const resolvePayment = useMutation({
     mutationFn: (vars: { paymentId: number; orderCode: string }) =>
       resolveUnmatchedPayment(vars.paymentId, vars.orderCode),
+    onSuccess: invalidate,
+  });
+  const changeStatus = useMutation({
+    mutationFn: (vars: { orderCode: string; status: PaymentStatus }) =>
+      setPaymentStatus(vars.orderCode, vars.status),
+    onSuccess: invalidate,
+  });
+  const removeOrder = useMutation({
+    mutationFn: (orderCode: string) => deleteOrder(orderCode),
     onSuccess: invalidate,
   });
 
@@ -158,6 +180,10 @@ export default function AdminOrdersPage() {
                 onSaveTracking={(trackingNo) =>
                   saveTracking.mutate({ orderCode: order.order_code, trackingNo })
                 }
+                onChangeStatus={(next) =>
+                  changeStatus.mutate({ orderCode: order.order_code, status: next })
+                }
+                onDelete={() => removeOrder.mutate(order.order_code)}
               />
             ))}
           </TableBody>
@@ -171,10 +197,14 @@ function OrderRow({
   order,
   onConfirmPaid,
   onSaveTracking,
+  onChangeStatus,
+  onDelete,
 }: {
   order: Order;
   onConfirmPaid: () => void;
   onSaveTracking: (trackingNo: string) => void;
+  onChangeStatus: (status: PaymentStatus) => void;
+  onDelete: () => void;
 }) {
   const [tracking, setTrackingValue] = useState("");
   const latestSlip = order.slips[0];
@@ -188,6 +218,18 @@ function OrderRow({
         <div className="text-xs text-gray-500">
           {order.product_name} × {order.quantity}
         </div>
+        <button
+          type="button"
+          className="mt-2 text-xs text-red-600 underline underline-offset-2 hover:text-red-700"
+          onClick={() => {
+            // ลบแล้วกู้ไม่ได้ — ถามยืนยันพร้อมรหัสออเดอร์ กันกดผิดแถว
+            if (window.confirm(`ลบออเดอร์ ${order.order_code} ถาวร? กู้คืนไม่ได้`)) {
+              onDelete();
+            }
+          }}
+        >
+          ลบออเดอร์
+        </button>
       </TableCell>
       <TableCell>
         <div className="font-medium">{order.customer_name}</div>
@@ -219,9 +261,17 @@ function OrderRow({
         )}
       </TableCell>
       <TableCell>
-        <Badge variant={order.payment_status === "paid" ? "default" : "outline"}>
-          {PAYMENT_LABEL[order.payment_status]}
-        </Badge>
+        <Select
+          value={order.payment_status}
+          onChange={(event) => onChangeStatus(event.target.value as PaymentStatus)}
+          className="h-8 w-40 text-xs"
+        >
+          {EDITABLE_STATUSES.map((value) => (
+            <option key={value} value={value}>
+              {PAYMENT_LABEL[value]}
+            </option>
+          ))}
+        </Select>
         {order.payment_status !== "paid" && (
           <Button size="sm" variant="outline" className="mt-2" onClick={onConfirmPaid}>
             ยืนยันเงินเข้า

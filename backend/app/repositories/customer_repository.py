@@ -46,6 +46,15 @@ class CustomerRepository:
         if customer.first_order_at is None:
             customer.first_order_at = ordered_at
 
+    def revoke_order(self, customer: Customer, amount: Decimal) -> None:
+        """ถอนออเดอร์ออกจากยอดสะสมของลูกค้า — ใช้ตอนแอดมินลบออเดอร์ทิ้ง
+
+        ไม่แตะ first_order_at / last_order_at เพราะย้อนกลับมาคำนวณจากตรงนี้ไม่ได้
+        และเป็นข้อมูลประกอบ ไม่ได้ใช้ตัดสินใจอะไร
+        """
+        customer.total_orders = max(0, customer.total_orders - 1)
+        customer.total_spent = max(Decimal("0"), Decimal(customer.total_spent) - amount)
+
     def soft_delete(self, customer: Customer, deleted_at: datetime) -> None:
         """PDPA: ลบข้อมูลระบุตัวตนออก แต่คงแถวไว้ให้ประวัติออเดอร์ไม่พัง"""
         customer.deleted_at = deleted_at

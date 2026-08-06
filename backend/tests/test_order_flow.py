@@ -213,3 +213,71 @@ def test_pdpa_soft_delete_scrubs_identity_but_keeps_history(db):
     assert "0812345678" not in customer.phone
     assert customer.total_orders == 1
     assert db.execute(select(Order)).scalar_one() is not None
+
+
+def test_admin_can_change_payment_status(db):
+    service = OrderService(db)
+    payment = service.create_order(make_order())
+
+    service.set_payment_status(payment.order_code, PaymentStatus.CANCELLED)
+
+    order = db.execute(
+        select(Order).where(Order.order_code == payment.order_code)
+    ).scalar_one()
+    assert order.payment_status is PaymentStatus.CANCELLED
+    # ยกเลิกแล้วต้องไม่มีเวลาที่จ่ายเงินค้างอยู่ ไม่งั้นออเดอร์ขัดกันเอง
+    assert order.paid_at is None
+
+
+def test_marking_paid_then_reverting_clears_paid_at(db):
+    service = OrderService(db)
+    payment = service.create_order(make_order())
+
+    service.set_payment_status(payment.order_code, PaymentStatus.PAID)
+    order = db.execute(
+        select(Order).where(Order.order_code == payment.order_code)
+    ).scalar_one()
+    assert order.paid_at is not None
+
+    service.set_payment_status(payment.order_code, PaymentStatus.AWAITING_PAYMENT)
+    db.refresh(order)
+    assert order.paid_at is None
+
+
+def test_delete_order_removes_slips_and_frees_the_satang_slot(db):
+    service = OrderService(db)
+    payment = service.create_order(make_order())
+    SlipService(db).submit(
+        payment.order_code,
+        SlipSubmit(
+            transaction_ref="TESTREF0001",
+            image_hash="a" * 64,
+            qr_payload=None,
+            sending_bank="014",
+        ),
+    )
+
+    service.delete_order(payment.order_code)
+
+    assert db.execute(select(Order)).scalars().all() == []
+    # สลิปต้องหายตามไปด้วย ไม่งั้นเลขอ้างอิงค้างเป็น unique index กันสลิปใบเดิมใช้ซ้ำไม่ได้
+    from app.models.order import PaymentSlip
+
+    assert db.execute(select(PaymentSlip)).scalars().all() == []
+
+    # ยอดสะสมของลูกค้าต้องถูกถอนคืน ไม่ค้างจากออเดอร์ที่ไม่มีแล้ว
+    customer = db.execute(select(Customer)).scalar_one()
+    assert customer.total_orders == 0
+    assert Decimal(customer.total_spent) == Decimal("0")
+
+    # เศษสตางค์เดิมต้องกลับมาว่าง ไม่งั้นสลอตรั่วไปเรื่อย ๆ จนยอดนี้จองไม่ได้อีก
+    from app.repositories.order_repository import OrderRepository
+
+    assert payment.amount_due not in OrderRepository(db).pending_amounts()
+
+
+def test_delete_missing_order_raises(db):
+    from app.services.order_service import OrderNotFound
+
+    with pytest.raises(OrderNotFound):
+        OrderService(db).delete_order("SC999999-9999")

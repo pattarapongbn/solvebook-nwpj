@@ -16,6 +16,7 @@ from app.schemas.orders import (
     CustomerItem,
     MarkPaidInput,
     OrderItem,
+    PaymentStatusInput,
     ResolveUnmatchedInput,
     TrackingInput,
     UnmatchedPaymentItem,
@@ -23,6 +24,8 @@ from app.schemas.orders import (
 from app.services.customer_service import CustomerNotFound, CustomerService
 from app.services.fulfillment_service import FulfillmentService, OrderNotPaid
 from app.services.fulfillment_service import OrderNotFound as ShipOrderNotFound
+from app.services.order_service import OrderNotFound as EditOrderNotFound
+from app.services.order_service import OrderService
 from app.services.payment_service import OrderNotFound, PaymentService, UnmatchedPaymentNotFound
 
 router = APIRouter(tags=["admin"], dependencies=[Depends(require_admin)])
@@ -53,6 +56,28 @@ def mark_paid(
     try:
         PaymentService(db).mark_paid_manually(order_code, payload.note)
     except OrderNotFound:
+        raise HTTPException(status_code=404, detail="ไม่พบออเดอร์นี้")
+    return {"ok": True}
+
+
+@router.patch("/admin/orders/{order_code}/status")
+def set_payment_status(
+    order_code: str, payload: PaymentStatusInput, db: Annotated[Session, Depends(get_db)]
+) -> dict[str, bool]:
+    """แอดมินย้ายสถานะการจ่ายเงินเอง — ไว้ยกเลิกออเดอร์หรือแก้ที่กดผิด"""
+    try:
+        OrderService(db).set_payment_status(order_code, payload.status)
+    except EditOrderNotFound:
+        raise HTTPException(status_code=404, detail="ไม่พบออเดอร์นี้")
+    return {"ok": True}
+
+
+@router.delete("/admin/orders/{order_code}")
+def delete_order(order_code: str, db: Annotated[Session, Depends(get_db)]) -> dict[str, bool]:
+    """ลบออเดอร์ถาวร พร้อมสลิปที่ผูกอยู่ — กู้คืนไม่ได้"""
+    try:
+        OrderService(db).delete_order(order_code)
+    except EditOrderNotFound:
         raise HTTPException(status_code=404, detail="ไม่พบออเดอร์นี้")
     return {"ok": True}
 
