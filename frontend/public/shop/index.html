@@ -2630,6 +2630,24 @@ window.SCOUT_API_BASE = (typeof window.SCOUT_API_BASE === "string")
 if (window.SCOUT_API_BASE) {
   fetch(window.SCOUT_API_BASE.replace(/\/+$/, "") + "/api/v1/health").catch(function () {});
 }
+
+// ===== Meta Pixel — ใส่ ID ตรงนี้ที่เดียว =====
+// เอามาจาก Meta Events Manager → Data sources → Pixel ของคุณ (ตัวเลขล้วน ~15 หลัก)
+// ปล่อยว่าง = ปิดการติดตาม หน้าร้านทำงานปกติทุกอย่าง แค่แอดจะวัดผลไม่ได้
+window.META_PIXEL_ID = "";
+
+(function () {
+  if (!window.META_PIXEL_ID) return;
+  /* eslint-disable */
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  /* eslint-enable */
+  fbq('init', window.META_PIXEL_ID);
+  fbq('track', 'PageView');
+})();
 </script>
 <script src="vendor/jsqr.min.js"></script>
 <script>
@@ -2753,8 +2771,18 @@ function showSaveHint(msg){
 }
 function amountDue(){ return state.payment?Number(state.payment.amount_due):state.qty*state.price; }
 
+/* ---------- meta pixel ----------
+   ส่งสัญญาณให้ Meta รู้ว่าคนที่กดจากแอดเดินไปถึงขั้นไหน เพื่อให้มันหาคนที่ "ซื้อจริง"
+   ไม่ใช่แค่ "คนชอบกด" ถ้าไม่ได้ตั้ง META_PIXEL_ID ฟังก์ชันนี้จะเงียบ ไม่พังอะไร */
+function track(event,params){
+  try{ if(window.fbq) window.fbq('track',event,params||{}); }catch(e){}
+}
+
 /* ---------- navigation ---------- */
-function goForm(){goScreen(2);}
+function goForm(){
+  track('AddToCart',{value:state.qty*state.price,currency:'THB',content_name:PRODUCT_NAME});
+  goScreen(2);
+}
 function goScreen(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen'+n).classList.add('active');
@@ -2855,6 +2883,9 @@ function createOrder(){
   }});
 }
 function openPayment(isResume){
+  // กรอกที่อยู่เสร็จและเห็น QR แล้ว — นับเป็นเริ่มเช็คเอาต์
+  // กลับมาต่อออเดอร์เดิม (isResume) ไม่นับซ้ำ ไม่งั้นตัวเลขในแอดจะเฟ้อ
+  if(!isResume) track('InitiateCheckout',{value:amountDue(),currency:'THB',content_name:PRODUCT_NAME});
   renderQR(state.payment.promptpay_payload,amountDue());
   document.getElementById('pay-note').textContent=
     'โอนให้ตรงยอดนี้ เศษสตางค์คือรหัสยืนยันออเดอร์ของคุณ ระบบใช้จับคู่เงินเข้าอัตโนมัติ';
@@ -3074,6 +3105,9 @@ async function confirmPay(){
   if(o.note){cn.textContent=o.note;cn.style.display='block';}else{cn.style.display='none';}
   document.getElementById('c-amt').textContent=amountDue().toFixed(2)+'฿';
   if(timerId) clearInterval(timerId);
+  // แนบสลิปแล้วกดยืนยัน — สัญญาณ "ซื้อ" ที่ใกล้ความจริงที่สุดที่หน้าร้านรู้ได้
+  // (เงินเข้าจริงหรือยังต้องรอแอดมินตรวจ แต่รอไม่ได้ Meta ต้องได้สัญญาณตอนนี้)
+  track('Purchase',{value:amountDue(),currency:'THB',content_name:PRODUCT_NAME});
   await store.del(KEY);
   goScreen(4);
 }
